@@ -196,18 +196,26 @@
             background: #333;
         }
 
-        .tip {
-            margin-top: 48px;
+        .affiliate {
+            margin-top: 32px;
             text-align: center;
         }
-        .tip a {
+        .affiliate a {
             font-size: 13px;
             color: var(--green-muted);
             text-decoration: none;
             transition: color 0.2s;
         }
-        .tip a:hover {
+        .affiliate a:hover {
             color: var(--green);
+        }
+
+        .ad-unit {
+            margin-top: 32px;
+            min-height: 100px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
         /* Desktop: wider container for result */
@@ -262,11 +270,22 @@
 
             <button class="again" onclick="reset()">Back</button>
 
-            <div class="tip">
-                <a href="https://ko-fi.com/billyrestey" target="_blank" rel="noopener">Donate 🍺</a>
+            <!-- Affiliate link -->
+            <div class="affiliate">
+                <a href="https://www.golftec.com" target="_blank" rel="noopener sponsored">Maybe lessons would help? →</a>
+            </div>
+
+            <!-- AdSense unit -->
+            <div class="ad-unit" id="adUnit">
+                <!-- Replace with your AdSense code after approval -->
+                <!-- <ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-XXXX" data-ad-slot="XXXX" data-ad-format="auto" data-full-width-responsive="true"></ins>
+                <script>(adsbygoogle = window.adsbygoogle || []).push({});</script> -->
             </div>
         </div>
     </div>
+
+    <!-- AdSense script - uncomment after approval -->
+    <!-- <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-XXXX" crossorigin="anonymous"></script> -->
 
     <script>
         const $ = id => document.getElementById(id);
