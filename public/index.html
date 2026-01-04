@@ -358,7 +358,7 @@
             const maxRoast = 200;
             const truncatedRoast = roast.length > maxRoast ? roast.substring(0, maxRoast) + '...' : roast;
             
-            const text = `I'm a ${handicap} handicap and just got roasted:\n\n"${truncatedRoast}"\n\nGet yours at`;
+            const text = `\n\n"${truncatedRoast}"\n\nGet roasted at`;
             const url = window.location.href;
             
             window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}`, '_blank');
