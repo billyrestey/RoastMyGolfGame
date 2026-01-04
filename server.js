@@ -215,7 +215,7 @@ app.post('/api/roast', async (req, res) => {
     console.log('Context being sent to Grok:\n', context);
     console.log('Roast angle:', angle);
 
-    const prompt = `Roast this golfer in 2-3 sentences with 2 different angles. Be funny, vulgar, and UNPREDICTABLE.
+    const prompt = `Roast this golfer in 2-3 sentences. Be funny, vulgar, and UNPREDICTABLE.
 
 DATA: ${context}
 
@@ -229,7 +229,8 @@ RULES:
 - Vary your sentence structure and rhythm
 - NO em dashes
 - Talk to an audience, not to the person being roasted
-- Could be dry wit, absurdist, mean, backhanded compliment - mix it up`;
+- Could be dry wit, absurdist, mean, backhanded compliment - mix it up
+- End with something nice about their game, then finish with a final blow`;
 
     try {
         const response = await fetch('https://api.x.ai/v1/chat/completions', {
