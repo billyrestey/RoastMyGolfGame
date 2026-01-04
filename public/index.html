@@ -146,7 +146,7 @@
         }
 
         .again {
-            margin-top: 48px;
+            margin-top: 24px;
             background: transparent;
             color: var(--green-muted);
             border: 1px solid #ccd5cf;
@@ -155,6 +155,45 @@
             background: #fff; 
             color: var(--green);
             border-color: var(--green);
+        }
+
+        .share-btn {
+            margin-top: 48px;
+            background: var(--green);
+            position: relative;
+        }
+        .share-btn:hover {
+            background: #1e3d2e;
+        }
+
+        .share-options {
+            display: none;
+            margin-top: 8px;
+            gap: 8px;
+        }
+        .share-options.show {
+            display: flex;
+        }
+        .share-options button {
+            flex: 1;
+            margin-top: 0;
+            font-size: 13px;
+            padding: 12px;
+        }
+        .share-save {
+            background: transparent;
+            color: var(--green);
+            border: 1px solid var(--green);
+        }
+        .share-save:hover {
+            background: var(--green);
+            color: #fff;
+        }
+        .share-x {
+            background: #000;
+        }
+        .share-x:hover {
+            background: #333;
         }
 
         .tip {
@@ -214,6 +253,12 @@
             </div>
 
             <div class="roast" id="roast"></div>
+
+            <button class="share-btn" onclick="toggleShare()">Share</button>
+            <div class="share-options" id="shareOptions">
+                <button class="share-save" onclick="saveImage()">Save Image</button>
+                <button class="share-x" onclick="shareToX()">Post on X</button>
+            </div>
 
             <button class="again" onclick="reset()">Back</button>
 
@@ -299,6 +344,97 @@
             $('error').classList.add('show');
         }
         function hideError() { $('error').classList.remove('show'); }
+
+        function toggleShare() {
+            $('shareOptions').classList.toggle('show');
+        }
+
+        function shareToX() {
+            const name = $('name').textContent;
+            const handicap = $('handicap').textContent;
+            const roast = $('roast').textContent;
+            
+            // Truncate roast for tweet (leave room for URL and hashtag)
+            const maxRoast = 200;
+            const truncatedRoast = roast.length > maxRoast ? roast.substring(0, maxRoast) + '...' : roast;
+            
+            const text = `I'm a ${handicap} handicap and just got roasted:\n\n"${truncatedRoast}"\n\nGet yours at`;
+            const url = window.location.href;
+            
+            window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}`, '_blank');
+        }
+
+        async function saveImage() {
+            // Create a canvas to render the roast as an image
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            
+            canvas.width = 600;
+            canvas.height = 400;
+            
+            // Background
+            ctx.fillStyle = '#e8f0ec';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            // Header bar
+            ctx.fillStyle = '#2d5a45';
+            ctx.fillRect(0, 0, canvas.width, 60);
+            
+            // Title
+            ctx.fillStyle = '#fff';
+            ctx.font = '500 14px Inter, sans-serif';
+            ctx.fillText('ROAST MY GOLF GAME', 24, 38);
+            
+            // Name and handicap
+            const name = $('name').textContent;
+            const handicap = $('handicap').textContent;
+            
+            ctx.fillStyle = '#2d5a45';
+            ctx.font = '600 24px Inter, sans-serif';
+            ctx.fillText(name, 24, 110);
+            
+            ctx.font = '300 48px Inter, sans-serif';
+            ctx.fillText(handicap, canvas.width - 80, 110);
+            
+            // Divider
+            ctx.strokeStyle = '#ccd5cf';
+            ctx.beginPath();
+            ctx.moveTo(24, 130);
+            ctx.lineTo(canvas.width - 24, 130);
+            ctx.stroke();
+            
+            // Roast text (word wrap)
+            const roast = $('roast').textContent;
+            ctx.fillStyle = '#333';
+            ctx.font = '400 15px Inter, sans-serif';
+            
+            const words = roast.split(' ');
+            let line = '';
+            let y = 165;
+            const maxWidth = canvas.width - 48;
+            
+            for (let word of words) {
+                const testLine = line + word + ' ';
+                if (ctx.measureText(testLine).width > maxWidth) {
+                    ctx.fillText(line, 24, y);
+                    line = word + ' ';
+                    y += 24;
+                    if (y > 360) {
+                        ctx.fillText(line + '...', 24, y);
+                        break;
+                    }
+                } else {
+                    line = testLine;
+                }
+            }
+            if (y <= 360) ctx.fillText(line, 24, y);
+            
+            // Download
+            const link = document.createElement('a');
+            link.download = `roast-${name.replace(/\s+/g, '-').toLowerCase()}.png`;
+            link.href = canvas.toDataURL('image/png');
+            link.click();
+        }
 
         function reset() {
             $('result').classList.remove('show');
