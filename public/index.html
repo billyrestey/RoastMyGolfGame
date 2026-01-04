@@ -358,7 +358,7 @@
             const maxRoast = 200;
             const truncatedRoast = roast.length > maxRoast ? roast.substring(0, maxRoast) + '...' : roast;
             
-            const text = `I'm a ${handicap} handicap and just got roasted:\n\n"${truncatedRoast}"\n\nGet yours at`;
+            const text = `"${truncatedRoast}"\n\nGet roasted at`;
             const url = window.location.href;
             
             window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}`, '_blank');
@@ -366,7 +366,7 @@
 
         async function saveImage() {
             // Create a canvas to render the roast as an image (2x resolution for crisp output)
-            const scale = 2;
+            const scale = 2.5;
             const canvas = document.createElement('canvas');
             const ctx = canvas.getContext('2d');
             
@@ -385,7 +385,7 @@
             // Title
             ctx.fillStyle = '#fff';
             ctx.font = '400 12px Inter, -apple-system, sans-serif';
-            ctx.fillText('ROASTMYGOLFGAME.COM', 24, 32);
+            ctx.fillText('ROASTMYGOLFGAME.COM', 18, 24);
             
             // Name and handicap
             const name = $('name').textContent;
