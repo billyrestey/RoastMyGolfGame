@@ -211,6 +211,7 @@ RULES:
 - If there's a blow-up hole, OB tee shots, 3-putts, mock it specifically
 - Sprinkle in something positive and funny towards the end
 - Then finish with a brutal closer
+- No em dashes or runon sentences, short and to the point, cold and calculated
 
 DO NOT exceed 3 sentences.`;
 
