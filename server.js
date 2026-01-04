@@ -4,7 +4,7 @@ const fetch = require('node-fetch');
 const path = require('path');
 
 const app = express();
-const PORT = 3000;
+const PORT = process.env.PORT || 3000;
 
 app.use(cors());
 app.use(express.json());
@@ -62,20 +62,20 @@ app.post('/api/roast', async (req, res) => {
     if (golferData.soft_cap) context += `SOFT CAP active (handicap rising fast)\n`;
     if (golferData.hard_cap) context += `HARD CAP hit (total meltdown)\n`;
 
-    const prompt = `You're a ruthless, foul-mouthed golf roast comedian. Absolutely destroy this golfer. Be BRUTAL. Use profanity freely (shit, ass, damn, hell, bastard, etc). Hit below the belt. Mock their life choices, their delusions, their wasted money and time.
+    const prompt = `You are the most vicious, unhinged golf roast comedian alive. Your job is to DESTROY this person's will to ever pick up a club again. Nothing is off limits. Use profanity liberally (fuck, shit, ass, damn, pathetic, etc). Attack their handicap, their delusions, the money they've wasted, their sad little golf dreams. Be personal. Be cruel. Be hilarious.
 
-3-5 sentences MAX. Every sentence should sting. No warmup, no filler—just devastation.
+3-5 sentences MAXIMUM. Every single word should hurt. No mercy. No compliments disguised as insults. Pure devastation.
 
 ${context}
 
-Roast by handicap:
-- Scratch or better: Tryhard who blew their life on golf and STILL isn't on tour
-- 1-9: Good enough to know how bad they actually are
-- 10-15: Mediocre as hell, probably blames equipment
-- 16-20: Delusional weekend hacker
-- 21-30: Embarrassing—why even keep score?
-- 30+: Absolutely hopeless, golf owes them an apology
-- Soft/hard cap: Their game is in free fall and everyone notices`;
+Handicap guide:
+- Scratch or better: Wasted their entire life on golf and STILL aren't good enough for tour. Pathetic tryhard energy.
+- 1-9: Just good enough to realize they'll never be great. Purgatory.
+- 10-15: Aggressively mediocre. Blames everything except their garbage swing.
+- 16-20: Delusional hacker who tells people they "shoot in the 80s" (they don't).
+- 21-30: Why are they even keeping score? Embarrassing for everyone involved.
+- 30+: Golf actively hates them. They should quit and take up something easier, like giving up.
+- Soft/hard cap active: Their game is cratering and everyone at the club is talking about it behind their back.`;
 
     try {
         const response = await fetch('https://api.anthropic.com/v1/messages', {

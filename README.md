@@ -1,53 +1,49 @@
 # 🔥 Roast My Golf Game
 
-A brutally honest golf roast generator. Enter your GHIN credentials, get destroyed.
+Get brutally roasted based on your GHIN handicap. No mercy.
 
-## Setup
+## Local Setup
 
-1. **Install dependencies:**
-   ```bash
-   npm install
-   ```
+```bash
+npm install
+export ANTHROPIC_API_KEY=your_key_here
+npm start
+```
 
-2. **Set your Anthropic API key** (for AI-generated roasts):
-   ```bash
-   export ANTHROPIC_API_KEY=your_key_here
-   ```
-   
-   Get a key at: https://console.anthropic.com/
-   
-   *Without an API key, the app will use pre-written fallback roasts.*
+Open http://localhost:3000
 
-3. **Run the server:**
-   ```bash
-   npm start
-   ```
+## Deploy to Railway
 
-4. **Open in browser:**
-   ```
-   http://localhost:3000
-   ```
+1. Push to GitHub
+2. Connect repo at [railway.app](https://railway.app)
+3. Add environment variable: `ANTHROPIC_API_KEY`
+4. Deploy
 
-## How it works
+## Deploy to Render
 
-1. Enter your GHIN number/email and password
-2. App fetches your handicap data from GHIN
-3. Claude generates a personalized roast based on your stats
-4. Cry into your putter
+1. Push to GitHub  
+2. New Web Service at [render.com](https://render.com)
+3. Connect repo, set:
+   - Build: `npm install`
+   - Start: `npm start`
+4. Add env var: `ANTHROPIC_API_KEY`
+
+## Environment Variables
+
+| Variable | Required | Description |
+|----------|----------|-------------|
+| `ANTHROPIC_API_KEY` | Yes | Get from console.anthropic.com |
+| `PORT` | No | Auto-set by hosting platform |
+
+## Tip Jar
+
+Update the Ko-fi link in `public/index.html` with your username.
 
 ## Files
 
 ```
-roast-golf/
-├── server.js        # Express backend (handles GHIN + Anthropic APIs)
-├── public/
-│   └── index.html   # Frontend (Windows 95 style)
+├── server.js          # Express API
+├── public/index.html  # Frontend
 ├── package.json
-└── README.md
+└── .gitignore
 ```
-
-## Notes
-
-- Your GHIN credentials are only used to fetch your data and are not stored
-- The roasts are meant to be funny, not actually mean (mostly)
-- Ad spaces included for future monetization

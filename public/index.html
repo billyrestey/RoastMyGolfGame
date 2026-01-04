@@ -157,18 +157,18 @@
             border-color: var(--green);
         }
 
-        .ad {
+        .tip {
             margin-top: 48px;
-            padding: 24px;
-            background: #f5f8f6;
-            border-radius: 4px;
-            font-size: 11px;
-            color: #aab8af;
             text-align: center;
-            min-height: 100px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+        }
+        .tip a {
+            font-size: 13px;
+            color: var(--green-muted);
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+        .tip a:hover {
+            color: var(--green);
         }
 
         /* Desktop: wider container for result */
@@ -178,8 +178,6 @@
             }
         }
     </style>
-    <!-- Google AdSense - uncomment and add your client ID after approval -->
-    <!-- <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-XXXXXXXXXXXXXXXX" crossorigin="anonymous"></script> -->
 </head>
 <body>
     <div class="container" id="mainContainer">
@@ -199,12 +197,6 @@
             </div>
 
             <button onclick="roastMe()">Get Roasted</button>
-
-            <!-- Ad Unit 1 -->
-            <div class="ad">
-                <!-- Replace with: <ins class="adsbygoogle" data-ad-client="ca-pub-XXXX" data-ad-slot="XXXX" data-ad-format="auto"></ins> -->
-                Ad
-            </div>
         </div>
 
         <div class="loading" id="loading">
@@ -225,10 +217,8 @@
 
             <button class="again" onclick="reset()">Try Another</button>
 
-            <!-- Ad Unit 2 -->
-            <div class="ad">
-                <!-- Replace with: <ins class="adsbygoogle" data-ad-client="ca-pub-XXXX" data-ad-slot="XXXX" data-ad-format="auto"></ins> -->
-                Ad
+            <div class="tip">
+                <a href="https://ko-fi.com/YOUR_KOFI_USERNAME" target="_blank" rel="noopener">Buy me a beer 🍺</a>
             </div>
         </div>
     </div>
@@ -293,14 +283,14 @@
 
         function generateFallback(g) {
             const h = parseFloat(g.display) || 20;
-            const n = g.player_name || 'pal';
+            const n = g.player_name?.split(' ')[0] || 'pal';
 
             if (h <= 5) {
-                return `A ${g.display}? Congrats ${n}, you've mass-funded the golf industry and you're still not on tour. All those lessons, all that range time, and the best you've got is bragging rights at your local muni. Your spouse resents you and your swing coach thanks you for the boat.`;
+                return `${n}, a ${g.display}? You've dumped thousands into this game and you're still not on tour. Let that satisfying failure sink in. Your swing coach retired off your payments alone, and your spouse has definitely Googled "golf addiction divorce."`;
             } else if (h <= 15) {
-                return `${n}, a ${g.display} is the handicap of someone who's played long enough to know exactly how much they suck. You three-putt from 15 feet, chunk wedges into bunkers, and still blame the greens. The definition of mid.`;
+                return `A ${g.display}, ${n}? That's the handicap of someone who's been playing long enough to know exactly how shit they are. You three-putt from 12 feet, skull chips across the green, and still show up every weekend like a fucking masochist.`;
             } else {
-                return `${n}... a ${g.display}. That's not a handicap, that's a cry for help. Golf doesn't want you. Your playing partners are just too polite to say it. At this point you're just paying to take a long walk and hate yourself.`;
+                return `${n}... a ${g.display}. Holy shit. That's not a handicap, that's a war crime. Golf doesn't want you. Your playing partners tolerate you. You're out here turning a 4-hour round into 6 and wondering why nobody invites you back.`;
             }
         }
 
