@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Roast My Golf Game</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --green: #2d5a45;
+            --green-light: #e8f0ec;
+            --green-muted: #6b8f7a;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, sans-serif;
+            background: var(--green-light);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            color: #111;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 420px;
+        }
+
+        h1 {
+            font-size: 13px;
+            font-weight: 500;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            margin-bottom: 48px;
+            color: var(--green-muted);
+        }
+
+        .form-group { margin-bottom: 24px; }
+
+        label {
+            display: block;
+            font-size: 11px;
+            font-weight: 500;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+            color: var(--green-muted);
+            margin-bottom: 8px;
+        }
+
+        input {
+            width: 100%;
+            padding: 16px 0;
+            font-size: 16px;
+            font-family: inherit;
+            border: none;
+            border-bottom: 1px solid #ccd5cf;
+            background: transparent;
+            transition: border-color 0.2s;
+        }
+        input:focus {
+            outline: none;
+            border-color: var(--green);
+        }
+        input::placeholder { color: #aab8af; }
+
+        button {
+            width: 100%;
+            padding: 16px;
+            font-size: 14px;
+            font-weight: 500;
+            font-family: inherit;
+            background: var(--green);
+            color: #fff;
+            border: none;
+            cursor: pointer;
+            transition: background 0.2s;
+            margin-top: 16px;
+        }
+        button:hover { background: #1e3d2e; }
+        button:disabled { background: #aab8af; cursor: not-allowed; }
+
+        .error {
+            font-size: 13px;
+            color: #c0392b;
+            margin-bottom: 24px;
+            display: none;
+        }
+        .error.show { display: block; }
+
+        .loading, .result { display: none; }
+        .loading.show, .result.show { display: block; }
+
+        .loading {
+            text-align: center;
+            padding: 60px 0;
+        }
+        .spinner {
+            width: 24px;
+            height: 24px;
+            border: 2px solid #ccd5cf;
+            border-top-color: var(--green);
+            border-radius: 50%;
+            margin: 0 auto 16px;
+            animation: spin 0.8s linear infinite;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .loading-text {
+            font-size: 13px;
+            color: var(--green-muted);
+        }
+
+        .result-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            margin-bottom: 32px;
+            padding-bottom: 24px;
+            border-bottom: 1px solid #ccd5cf;
+        }
+        .result-name {
+            font-size: 20px;
+            font-weight: 600;
+            color: var(--green);
+        }
+        .result-handicap {
+            font-size: 36px;
+            font-weight: 300;
+            color: var(--green);
+        }
+        .result-club {
+            font-size: 13px;
+            color: var(--green-muted);
+            margin-top: 4px;
+        }
+
+        .roast {
+            font-size: 17px;
+            line-height: 1.75;
+            font-weight: 400;
+            color: #333;
+            max-width: 100%;
+        }
+
+        .again {
+            margin-top: 48px;
+            background: transparent;
+            color: var(--green-muted);
+            border: 1px solid #ccd5cf;
+        }
+        .again:hover { 
+            background: #fff; 
+            color: var(--green);
+            border-color: var(--green);
+        }
+
+        .ad {
+            margin-top: 48px;
+            padding: 24px;
+            background: #f5f8f6;
+            border-radius: 4px;
+            font-size: 11px;
+            color: #aab8af;
+            text-align: center;
+            min-height: 100px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Desktop: wider container for result */
+        @media (min-width: 640px) {
+            .result-container {
+                max-width: 600px;
+            }
+        }
+    </style>
+    <!-- Google AdSense - uncomment and add your client ID after approval -->
+    <!-- <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-XXXXXXXXXXXXXXXX" crossorigin="anonymous"></script> -->
+</head>
+<body>
+    <div class="container" id="mainContainer">
+        <div id="loginForm">
+            <h1>Roast My Golf Game</h1>
+
+            <div class="error" id="error"></div>
+
+            <div class="form-group">
+                <label>GHIN Number</label>
+                <input type="text" id="ghin" placeholder="Enter your GHIN">
+            </div>
+
+            <div class="form-group">
+                <label>Password</label>
+                <input type="password" id="password" placeholder="Enter password">
+            </div>
+
+            <button onclick="roastMe()">Get Roasted</button>
+
+            <!-- Ad Unit 1 -->
+            <div class="ad">
+                <!-- Replace with: <ins class="adsbygoogle" data-ad-client="ca-pub-XXXX" data-ad-slot="XXXX" data-ad-format="auto"></ins> -->
+                Ad
+            </div>
+        </div>
+
+        <div class="loading" id="loading">
+            <div class="spinner"></div>
+            <div class="loading-text" id="loadingText">Loading...</div>
+        </div>
+
+        <div class="result" id="result">
+            <div class="result-header">
+                <div>
+                    <div class="result-name" id="name"></div>
+                    <div class="result-club" id="club"></div>
+                </div>
+                <div class="result-handicap" id="handicap"></div>
+            </div>
+
+            <div class="roast" id="roast"></div>
+
+            <button class="again" onclick="reset()">Try Another</button>
+
+            <!-- Ad Unit 2 -->
+            <div class="ad">
+                <!-- Replace with: <ins class="adsbygoogle" data-ad-client="ca-pub-XXXX" data-ad-slot="XXXX" data-ad-format="auto"></ins> -->
+                Ad
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const $ = id => document.getElementById(id);
+
+        async function roastMe() {
+            const ghin = $('ghin').value.trim();
+            const password = $('password').value;
+
+            if (!ghin || !password) {
+                showError('Please enter both fields');
+                return;
+            }
+
+            hideError();
+            $('loginForm').style.display = 'none';
+            $('loading').classList.add('show');
+            $('loadingText').textContent = 'Fetching handicap...';
+
+            try {
+                const ghinRes = await fetch('/api/ghin', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email_or_ghin: ghin, password })
+                });
+
+                if (!ghinRes.ok) throw new Error('Invalid credentials');
+
+                const golfer = await ghinRes.json();
+
+                $('name').textContent = golfer.player_name || 'Unknown';
+                $('club').textContent = golfer.club_name || '';
+                $('handicap').textContent = golfer.display || '—';
+
+                $('loadingText').textContent = 'Generating roast...';
+
+                const roastRes = await fetch('/api/roast', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ golferData: golfer })
+                });
+
+                const roastData = await roastRes.json();
+                $('roast').textContent = roastData.fallback ? generateFallback(golfer) : roastData.roast;
+
+                // Expand container on desktop for result
+                if (window.innerWidth >= 640) {
+                    $('mainContainer').style.maxWidth = '600px';
+                }
+
+                $('loading').classList.remove('show');
+                $('result').classList.add('show');
+
+            } catch (err) {
+                $('loading').classList.remove('show');
+                $('loginForm').style.display = 'block';
+                showError(err.message);
+            }
+        }
+
+        function generateFallback(g) {
+            const h = parseFloat(g.display) || 20;
+            const n = g.player_name || 'pal';
+
+            if (h <= 5) {
+                return `A ${g.display}? Congrats ${n}, you've mass-funded the golf industry and you're still not on tour. All those lessons, all that range time, and the best you've got is bragging rights at your local muni. Your spouse resents you and your swing coach thanks you for the boat.`;
+            } else if (h <= 15) {
+                return `${n}, a ${g.display} is the handicap of someone who's played long enough to know exactly how much they suck. You three-putt from 15 feet, chunk wedges into bunkers, and still blame the greens. The definition of mid.`;
+            } else {
+                return `${n}... a ${g.display}. That's not a handicap, that's a cry for help. Golf doesn't want you. Your playing partners are just too polite to say it. At this point you're just paying to take a long walk and hate yourself.`;
+            }
+        }
+
+        function showError(msg) {
+            $('error').textContent = msg;
+            $('error').classList.add('show');
+        }
+        function hideError() { $('error').classList.remove('show'); }
+
+        function reset() {
+            $('result').classList.remove('show');
+            $('loginForm').style.display = 'block';
+            $('mainContainer').style.maxWidth = '420px';
+            $('ghin').value = '';
+            $('password').value = '';
+        }
+
+        $('password').addEventListener('keypress', e => { if (e.key === 'Enter') roastMe(); });
+        $('ghin').addEventListener('keypress', e => { if (e.key === 'Enter') $('password').focus(); });
+    </script>
+</body>
+</html>
