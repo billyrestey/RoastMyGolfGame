@@ -216,7 +216,7 @@ app.post('/api/roast', async (req, res) => {
     console.log('Context being sent to Grok:\n', context);
     console.log('Roast angle:', angle);
 
-    const prompt = `You're a comedian roasting a golfer TO AN AUDIENCE, not to their face. Talk about them in third person like you're telling the crowd about this disaster of a golfer.
+    const prompt = `You're a comedian roasting a golfer TO AN AUDIENCE, not to their face. Talk about them in third person like you're telling the crowd about this disaster of a golfer. Be funny, vulgar, and UNPREDICTABLE.
 
 GOLFER: ${context}
 
@@ -226,7 +226,7 @@ RULES:
 - 2-3 sentences MAX
 - Third person: "This guy...", "Billy here...", "Look at this man..."
 - You're telling the audience, not talking to ${firstName}
-- Light profanity okay (shit, damn, ass, hell)
+- Use light profanity(shit, damn, ass, hell)
 - Tone: "can you believe this guy?" energy
 - Mix of disbelief, pity, and mockery`;
 
@@ -240,7 +240,7 @@ RULES:
             body: JSON.stringify({
                 model: 'grok-3',
                 messages: [
-                    { role: 'system', content: 'You are a stand-up comedian roasting amateur golfers to a live audience. Always talk ABOUT the golfer in third person, never TO them. 2-3 sentences max. Crowd work energy.' },
+                    { role: 'system', content: 'You are a stand-up comedian roasting amateur golfers to a live audience. Always talk ABOUT the golfer in third person, never TO them. 2-3 sentences max. Crowd work energy. Be funny, vulgar, and UNPREDICTABLE.' },
                     { role: 'user', content: prompt }
                 ],
                 temperature: 1.2
