@@ -216,20 +216,19 @@ app.post('/api/roast', async (req, res) => {
     console.log('Context being sent to Grok:\n', context);
     console.log('Roast angle:', angle);
 
-    const prompt = `Roast this golfer in 2-3 sentences. Be funny, vulgar, and UNPREDICTABLE.
+    const prompt = `You're a comedian roasting a golfer TO AN AUDIENCE, not to their face. Talk about them in third person like you're telling the crowd about this disaster of a golfer.
 
-DATA: ${context}
+GOLFER: ${context}
 
-YOUR ANGLE FOR THIS ROAST: ${angle}
+YOUR ANGLE: ${angle}
 
 RULES:
-- 2-3 sentences ONLY
-- Be creative and surprising - no formulaic structure
+- 2-3 sentences MAX
+- Third person: "This guy...", "Billy here...", "Look at this man..."
+- You're telling the audience, not talking to ${firstName}
 - Light profanity okay (shit, damn, ass, hell)
-- Don't just list their stats back - actually ROAST them
-- Vary your sentence structure and rhythm
-- NO em dashes
-- Could be dry wit, absurdist, mean, backhanded compliment - mix it up`;
+- Tone: "can you believe this guy?" energy
+- Mix of disbelief, pity, and mockery`;
 
     try {
         const response = await fetch('https://api.x.ai/v1/chat/completions', {
@@ -241,7 +240,7 @@ RULES:
             body: JSON.stringify({
                 model: 'grok-3',
                 messages: [
-                    { role: 'system', content: 'You are a comedy roast writer. Every roast must feel completely different - vary your style between dry wit, absurdist humor, savage burns, and backhanded compliments. Never use the same structure twice. 2-3 sentences max.' },
+                    { role: 'system', content: 'You are a stand-up comedian roasting amateur golfers to a live audience. Always talk ABOUT the golfer in third person, never TO them. 2-3 sentences max. Crowd work energy.' },
                     { role: 'user', content: prompt }
                 ],
                 temperature: 1.2
