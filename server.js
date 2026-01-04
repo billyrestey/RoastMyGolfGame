@@ -198,25 +198,38 @@ app.post('/api/roast', async (req, res) => {
         }
     }
 
+    // Pick a random roast angle to force variety
+    const angles = [
+        'Focus on their CLUB MEMBERSHIP - mock paying dues to embarrass themselves',
+        'Focus on the GAP between their low handicap and current state - they peaked and fell off',
+        'Focus on ONE SPECIFIC HOLE disaster - make it vivid and painful',
+        'Focus on their WORST ROUND - paint a picture of that day',
+        'Focus on their HANDICAP NUMBER itself - what it says about them as a person',
+        'Focus on their CONSISTENCY (or lack thereof) - the rollercoaster',
+        'Focus on HOW LONG theyve probably played vs how bad they still are',
+        'Focus on the MONEY theyve wasted on this hobby',
+        'Focus on what their PLAYING PARTNERS must think of them',
+        'Focus on their DELUSION - they probably think theyre better than this',
+    ];
+    const angle = angles[Math.floor(Math.random() * angles.length)];
+
     console.log('Context being sent to Grok:\n', context);
+    console.log('Roast angle:', angle);
 
-    const prompt = `You are a vulgar, brutal, clever, golf roast comedian. Destroy ${firstName} in 2-3 sentences MAX.
+    const prompt = `Roast this golfer in 2-3 sentences. Be funny, vulgar, and UNPREDICTABLE.
 
-${context}
+DATA: ${context}
+
+YOUR ANGLE FOR THIS ROAST: ${angle}
 
 RULES:
-- Short and punchy. No rambling.
-- Err on being clever over being too mean
-- Use light profanity (fuck, shit, damn, ass)
-- If there's a blow-up hole, OB tee shots, 3-putts, mock it specifically
-- Sprinkle in something positive and funny towards the end
-- Then finish with a brutal closer
-- No em dashes or runon sentences, short and to the point, cold and calculated
-- Refer to scores as bogeys instead of the numberical amount (+6) and so on
-- Refer to holes as Par 3, Par 4, Par 5, etc. (You triple bogeyed a Par 3)
-- Look for anything reflective or patternistic on their overall game (such as multiple rounds over 100, peaking at a low score, etc)
-
-DO NOT exceed 3 sentences.`;
+- 2-3 sentences ONLY
+- Be creative and surprising - no formulaic structure
+- Light profanity okay (shit, damn, ass, hell)
+- Don't just list their stats back - actually ROAST them
+- Vary your sentence structure and rhythm
+- NO em dashes
+- Could be dry wit, absurdist, mean, backhanded compliment - mix it up`;
 
     try {
         const response = await fetch('https://api.x.ai/v1/chat/completions', {
@@ -228,10 +241,10 @@ DO NOT exceed 3 sentences.`;
             body: JSON.stringify({
                 model: 'grok-3',
                 messages: [
-                    { role: 'system', content: 'You are a vulgar, clever, brutal, roast comedian. Keep it SHORT. 2-3 sentences max.' },
+                    { role: 'system', content: 'You are a comedy roast writer. Every roast must feel completely different - vary your style between dry wit, absurdist humor, savage burns, and backhanded compliments. Never use the same structure twice. 2-3 sentences max.' },
                     { role: 'user', content: prompt }
                 ],
-                temperature: 1.0
+                temperature: 1.2
             })
         });
 
