@@ -358,31 +358,33 @@
             const maxRoast = 200;
             const truncatedRoast = roast.length > maxRoast ? roast.substring(0, maxRoast) + '...' : roast;
             
-            const text = `\n\n"${truncatedRoast}"\n\nGet roasted at`;
+            const text = `I'm a ${handicap} handicap and just got roasted:\n\n"${truncatedRoast}"\n\nGet yours at`;
             const url = window.location.href;
             
             window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}`, '_blank');
         }
 
         async function saveImage() {
-            // Create a canvas to render the roast as an image
+            // Create a canvas to render the roast as an image (2x resolution for crisp output)
+            const scale = 2;
             const canvas = document.createElement('canvas');
             const ctx = canvas.getContext('2d');
             
-            canvas.width = 600;
-            canvas.height = 400;
+            canvas.width = 600 * scale;
+            canvas.height = 400 * scale;
+            ctx.scale(scale, scale);
             
             // Background
             ctx.fillStyle = '#e8f0ec';
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            ctx.fillRect(0, 0, 600, 400);
             
             // Header bar
             ctx.fillStyle = '#2d5a45';
-            ctx.fillRect(0, 0, canvas.width, 60);
+            ctx.fillRect(0, 0, 600, 60);
             
             // Title
             ctx.fillStyle = '#fff';
-            ctx.font = '500 14px Inter, sans-serif';
+            ctx.font = '500 14px Inter, -apple-system, sans-serif';
             ctx.fillText('ROAST MY GOLF GAME', 24, 38);
             
             // Name and handicap
@@ -390,44 +392,48 @@
             const handicap = $('handicap').textContent;
             
             ctx.fillStyle = '#2d5a45';
-            ctx.font = '600 24px Inter, sans-serif';
-            ctx.fillText(name, 24, 110);
+            ctx.font = '600 22px Inter, -apple-system, sans-serif';
+            ctx.fillText(name, 24, 105);
             
-            ctx.font = '300 48px Inter, sans-serif';
-            ctx.fillText(handicap, canvas.width - 80, 110);
+            // Right-align handicap
+            ctx.font = '300 44px Inter, -apple-system, sans-serif';
+            const handicapWidth = ctx.measureText(handicap).width;
+            ctx.fillText(handicap, 600 - 24 - handicapWidth, 105);
             
             // Divider
             ctx.strokeStyle = '#ccd5cf';
+            ctx.lineWidth = 1;
             ctx.beginPath();
-            ctx.moveTo(24, 130);
-            ctx.lineTo(canvas.width - 24, 130);
+            ctx.moveTo(24, 125);
+            ctx.lineTo(576, 125);
             ctx.stroke();
             
             // Roast text (word wrap)
             const roast = $('roast').textContent;
             ctx.fillStyle = '#333';
-            ctx.font = '400 15px Inter, sans-serif';
+            ctx.font = '400 15px Inter, -apple-system, sans-serif';
             
             const words = roast.split(' ');
             let line = '';
-            let y = 165;
-            const maxWidth = canvas.width - 48;
+            let y = 160;
+            const maxWidth = 552;
+            const lineHeight = 24;
             
             for (let word of words) {
                 const testLine = line + word + ' ';
                 if (ctx.measureText(testLine).width > maxWidth) {
-                    ctx.fillText(line, 24, y);
+                    ctx.fillText(line.trim(), 24, y);
                     line = word + ' ';
-                    y += 24;
-                    if (y > 360) {
-                        ctx.fillText(line + '...', 24, y);
+                    y += lineHeight;
+                    if (y > 370) {
+                        ctx.fillText(line.trim() + '...', 24, y);
                         break;
                     }
                 } else {
                     line = testLine;
                 }
             }
-            if (y <= 360) ctx.fillText(line, 24, y);
+            if (y <= 370 && line.trim()) ctx.fillText(line.trim(), 24, y);
             
             // Download
             const link = document.createElement('a');
