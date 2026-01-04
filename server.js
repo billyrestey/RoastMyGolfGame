@@ -207,16 +207,15 @@ app.post('/api/roast', async (req, res) => {
         'Focus on their HANDICAP NUMBER itself - what it says about them as a person',
         'Focus on their CONSISTENCY (or lack thereof) - the rollercoaster',
         'Focus on HOW LONG theyve probably played vs how bad they still are',
-        'Focus on the MONEY theyve wasted on this hobby',
-        'Focus on what their PLAYING PARTNERS must think of them',
-        'Focus on their DELUSION - they probably think theyre better than this',
+        'Focus on the MONEY theyve wasted on this hobby, buying the latest Driver, overspending on shafts, slicing or hooking Pro V1s out of bounds, flying to Bandon to shoot their career low',
+        'Focus on their DELUSION - they probably think theyre better than this, that they have a pretty swing, they attack the pin, they drain putts',
     ];
     const angle = angles[Math.floor(Math.random() * angles.length)];
 
     console.log('Context being sent to Grok:\n', context);
     console.log('Roast angle:', angle);
 
-    const prompt = `Roast this golfer in 2-3 sentences. Be funny, vulgar, and UNPREDICTABLE.
+    const prompt = `Roast this golfer in 2-3 sentences with 2 different angles. Be funny, vulgar, and UNPREDICTABLE.
 
 DATA: ${context}
 
