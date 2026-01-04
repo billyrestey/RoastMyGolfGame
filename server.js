@@ -44,12 +44,12 @@ app.post('/api/ghin', async (req, res) => {
     }
 });
 
-// Roast generation endpoint
+// Roast generation endpoint - using Grok API
 app.post('/api/roast', async (req, res) => {
     const { golferData } = req.body;
-    const ANTHROPIC_API_KEY = process.env.ANTHROPIC_API_KEY;
+    const XAI_API_KEY = process.env.XAI_API_KEY;
 
-    if (!ANTHROPIC_API_KEY) {
+    if (!XAI_API_KEY) {
         return res.status(500).json({ error: 'API key not configured', fallback: true });
     }
 
@@ -78,28 +78,30 @@ Handicap guide:
 - Soft/hard cap active: Their game is cratering and everyone at the club is talking about it behind their back.`;
 
     try {
-        const response = await fetch('https://api.anthropic.com/v1/messages', {
+        const response = await fetch('https://api.x.ai/v1/chat/completions', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'x-api-key': ANTHROPIC_API_KEY,
-                'anthropic-version': '2023-06-01'
+                'Authorization': `Bearer ${XAI_API_KEY}`
             },
             body: JSON.stringify({
-                model: 'claude-sonnet-4-20250514',
-                max_tokens: 1000,
-                messages: [{ role: 'user', content: prompt }]
+                model: 'grok-3',
+                messages: [
+                    { role: 'system', content: 'You are an unfiltered, savage comedy roast comedian. Be brutal, vulgar, and hilarious. No limits.' },
+                    { role: 'user', content: prompt }
+                ],
+                temperature: 0.9
             })
         });
 
         const data = await response.json();
         
         if (!response.ok) {
-            console.error('Anthropic API error:', data);
+            console.error('Grok API error:', data);
             return res.status(500).json({ error: 'Roast generation failed', fallback: true });
         }
 
-        const roastText = data.content.map(item => item.text || '').join('\n');
+        const roastText = data.choices?.[0]?.message?.content || '';
         res.json({ roast: roastText });
     } catch (error) {
         console.error('Roast API error:', error);
