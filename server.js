@@ -158,74 +158,60 @@ app.post('/api/roast', async (req, res) => {
     console.log('Scores available:', scores.length);
 
     // Build context with basic info
-    let context = `Golfer's first name: ${firstName}\nFull name: ${playerName}\nCurrent Handicap Index: ${handicap}\nLowest Handicap Index ever: ${lowHI}\nHome Club: ${clubName}\n`;
+    let context = `${firstName} | Handicap: ${handicap} | Low: ${lowHI} | Club: ${clubName}`;
     
-    if (golferData.soft_cap) context += `⚠️ SOFT CAP is active - their handicap is rising fast, they're getting WORSE\n`;
-    if (golferData.hard_cap) context += `🚨 HARD CAP hit - complete meltdown, game in free fall\n`;
+    if (golferData.soft_cap) context += ` | ⚠️ SOFT CAP (getting worse)`;
+    if (golferData.hard_cap) context += ` | 🚨 HARD CAP (total collapse)`;
 
-    // Add score history analysis if available
+    // Add score highlights if available
     if (scores.length > 0) {
-        context += `\n=== RECENT SCORE HISTORY (USE THIS FOR PERSONALIZED ROASTING) ===\n`;
-        
-        const recentScores = scores.slice(0, 8);
+        const recentScores = scores.slice(0, 6);
         let worstRound = { diff: 0 };
-        let worstHoleEver = null;
+        let worstHole = null;
 
         recentScores.forEach((score) => {
-            const courseName = score.facility_name || score.course_name || 'Unknown Course';
-            const adjustedScore = score.adjusted_gross_score;
+            const courseName = score.facility_name || score.course_name || 'Unknown';
             const differential = parseFloat(score.differential) || 0;
-            const datePlayed = score.played_at || '';
-            const formattedDate = datePlayed ? new Date(datePlayed).toLocaleDateString() : 'recent';
-            
-            let holeInfo = '';
-            if (score.worst_hole && score.worst_hole.over >= 3) {
-                holeInfo = ` — DISASTER: +${score.worst_hole.over} on hole ${score.worst_hole.hole_number} (par ${score.worst_hole.par}, shot ${score.worst_hole.score})`;
-                
-                // Track worst hole across all rounds
-                if (!worstHoleEver || score.worst_hole.over > worstHoleEver.over) {
-                    worstHoleEver = { ...score.worst_hole, course: courseName, date: formattedDate };
-                }
-            }
-            
-            context += `• Shot ${adjustedScore} at ${courseName} (diff: ${differential.toFixed(1)}) on ${formattedDate}${holeInfo}\n`;
             
             if (differential > worstRound.diff) {
-                worstRound = { score: adjustedScore, course: courseName, diff: differential, date: formattedDate };
+                worstRound = { score: score.adjusted_gross_score, course: courseName, diff: differential };
+            }
+            
+            if (score.worst_hole && score.worst_hole.over >= 3) {
+                if (!worstHole || score.worst_hole.over > worstHole.over) {
+                    worstHole = { ...score.worst_hole, course: courseName };
+                }
             }
         });
 
         if (worstRound.course) {
-            context += `\n🎯 WORST RECENT ROUND: Shot ${worstRound.score} at ${worstRound.course} with a ${worstRound.diff.toFixed(1)} differential - ROAST THIS!\n`;
+            context += `\nWorst round: ${worstRound.score} at ${worstRound.course} (${worstRound.diff.toFixed(1)} diff)`;
         }
         
-        if (worstHoleEver) {
-            context += `💀 WORST HOLE: Made a +${worstHoleEver.over} (${worstHoleEver.score} on a par ${worstHoleEver.par}) on hole ${worstHoleEver.hole_number} at ${worstHoleEver.course} - DESTROY THEM FOR THIS!\n`;
+        if (worstHole) {
+            context += `\nBlow-up hole: +${worstHole.over} on hole ${worstHole.hole_number} (${worstHole.score} on par ${worstHole.par}) at ${worstHole.course}`;
         }
         
         const avgDiff = recentScores.reduce((sum, s) => sum + (parseFloat(s.differential) || 0), 0) / recentScores.length;
-        const handicapNum = parseFloat(handicap) || 0;
-        if (avgDiff > handicapNum + 2) {
-            context += `📉 TREND: Recent avg differential (${avgDiff.toFixed(1)}) is worse than handicap (${handicap}) - SPIRALING!\n`;
+        if (avgDiff > parseFloat(handicap) + 2) {
+            context += `\nTrend: Avg diff ${avgDiff.toFixed(1)} vs handicap ${handicap} = DECLINING`;
         }
-    } else {
-        context += `\n(No recent score history available - roast based on handicap and club)\n`;
     }
 
     console.log('Context being sent to Grok:\n', context);
 
-    const prompt = `You are the most savage, foul-mouthed golf roast comedian. Your job is to DESTROY ${firstName}. Use profanity freely (fuck, shit, damn, ass). Be mean, personal, and hilarious.
+    const prompt = `You are a brutal golf roast comedian. Destroy ${firstName} in 2-3 sentences MAX.
 
-=== GOLFER DATA ===
 ${context}
 
-=== INSTRUCTIONS ===
-- If there's score history, YOU MUST reference specific rounds, courses, and scores
-- Call out their worst round by name: "You shot a [score] at [course]? Jesus Christ..."
-- Mock the gap between their low handicap and current state if relevant
-- Be SPECIFIC, not generic
-- 3-5 sentences MAXIMUM
-- End with something brutal about their future in golf`;
+RULES:
+- 50% handicap jokes, 50% specific score/hole callouts (if available)
+- Short and punchy. No rambling.
+- Use profanity (fuck, shit, damn, ass)
+- If there's a blow-up hole, mock it specifically
+- End with one brutal closer
+
+DO NOT exceed 3 sentences.`;
 
     try {
         const response = await fetch('https://api.x.ai/v1/chat/completions', {
@@ -237,7 +223,7 @@ ${context}
             body: JSON.stringify({
                 model: 'grok-3',
                 messages: [
-                    { role: 'system', content: 'You are an absolutely unhinged, vulgar roast comedian who specializes in destroying amateur golfers. Reference specific data when provided. No mercy. No limits.' },
+                    { role: 'system', content: 'You are a vulgar, brutal roast comedian. Keep it SHORT. 2-3 sentences max.' },
                     { role: 'user', content: prompt }
                 ],
                 temperature: 1.0
