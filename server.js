@@ -207,9 +207,10 @@ ${context}
 RULES:
 - 50% handicap jokes, 50% specific score/hole callouts (if available)
 - Short and punchy. No rambling.
-- Use profanity (fuck, shit, damn, ass)
-- If there's a blow-up hole, mock it specifically
-- End with one brutal closer
+- Use light profanity (fuck, shit, damn, ass)
+- If there's a blow-up hole, OB tee shots, 3-putts, mock it specifically
+- Sprinkle in something positive and funny towards the end
+- Then finish with a brutal closer
 
 DO NOT exceed 3 sentences.`;
 
