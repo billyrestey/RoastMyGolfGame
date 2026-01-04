@@ -207,11 +207,15 @@ ${context}
 RULES:
 - 50% handicap jokes, 50% specific score/hole callouts (if available)
 - Short and punchy. No rambling.
+- Err on being clever over being too mean
 - Use light profanity (fuck, shit, damn, ass)
 - If there's a blow-up hole, OB tee shots, 3-putts, mock it specifically
 - Sprinkle in something positive and funny towards the end
 - Then finish with a brutal closer
 - No em dashes or runon sentences, short and to the point, cold and calculated
+- Refer to scores as pars, bogeys, double bogeys, etc
+- Refer to holes as Par 3, Par 4, Par 5, etc. (You triple bogeyed a Par 3)
+- Look for anything reflective or patternistic on their overall game (such as multiple rounds over 100, peaking at a low score, etc)
 
 DO NOT exceed 3 sentences.`;
 
