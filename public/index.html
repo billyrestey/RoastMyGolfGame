@@ -1,19 +1,12 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Roast My Golf Game</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3633809482557980"
-        crossorigin="anonymous"></script>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
 
         :root {
             --green: #2d5a45;
@@ -46,9 +39,7 @@
             color: var(--green-muted);
         }
 
-        .form-group {
-            margin-bottom: 24px;
-        }
+        .form-group { margin-bottom: 24px; }
 
         label {
             display: block;
@@ -70,15 +61,11 @@
             background: transparent;
             transition: border-color 0.2s;
         }
-
         input:focus {
             outline: none;
             border-color: var(--green);
         }
-
-        input::placeholder {
-            color: #aab8af;
-        }
+        input::placeholder { color: #aab8af; }
 
         button {
             width: 100%;
@@ -93,15 +80,8 @@
             transition: background 0.2s;
             margin-top: 16px;
         }
-
-        button:hover {
-            background: #1e3d2e;
-        }
-
-        button:disabled {
-            background: #aab8af;
-            cursor: not-allowed;
-        }
+        button:hover { background: #1e3d2e; }
+        button:disabled { background: #aab8af; cursor: not-allowed; }
 
         .error {
             font-size: 13px;
@@ -109,26 +89,15 @@
             margin-bottom: 24px;
             display: none;
         }
+        .error.show { display: block; }
 
-        .error.show {
-            display: block;
-        }
-
-        .loading,
-        .result {
-            display: none;
-        }
-
-        .loading.show,
-        .result.show {
-            display: block;
-        }
+        .loading, .result { display: none; }
+        .loading.show, .result.show { display: block; }
 
         .loading {
             text-align: center;
             padding: 60px 0;
         }
-
         .spinner {
             width: 24px;
             height: 24px;
@@ -138,13 +107,7 @@
             margin: 0 auto 16px;
             animation: spin 0.8s linear infinite;
         }
-
-        @keyframes spin {
-            to {
-                transform: rotate(360deg);
-            }
-        }
-
+        @keyframes spin { to { transform: rotate(360deg); } }
         .loading-text {
             font-size: 13px;
             color: var(--green-muted);
@@ -158,19 +121,16 @@
             padding-bottom: 24px;
             border-bottom: 1px solid #ccd5cf;
         }
-
         .result-name {
             font-size: 20px;
             font-weight: 600;
             color: var(--green);
         }
-
         .result-handicap {
             font-size: 36px;
             font-weight: 300;
             color: var(--green);
         }
-
         .result-club {
             font-size: 13px;
             color: var(--green-muted);
@@ -191,9 +151,8 @@
             color: var(--green-muted);
             border: 1px solid #ccd5cf;
         }
-
-        .again:hover {
-            background: #fff;
+        .again:hover { 
+            background: #fff; 
             color: var(--green);
             border-color: var(--green);
         }
@@ -203,7 +162,6 @@
             background: var(--green);
             position: relative;
         }
-
         .share-btn:hover {
             background: #1e3d2e;
         }
@@ -213,33 +171,27 @@
             margin-top: 8px;
             gap: 8px;
         }
-
         .share-options.show {
             display: flex;
         }
-
         .share-options button {
             flex: 1;
             margin-top: 0;
             font-size: 13px;
             padding: 12px;
         }
-
         .share-save {
             background: transparent;
             color: var(--green);
             border: 1px solid var(--green);
         }
-
         .share-save:hover {
             background: var(--green);
             color: #fff;
         }
-
         .share-x {
             background: #000;
         }
-
         .share-x:hover {
             background: #333;
         }
@@ -248,16 +200,29 @@
             margin-top: 32px;
             text-align: center;
         }
-
         .affiliate a {
             font-size: 13px;
             color: var(--green-muted);
             text-decoration: none;
             transition: color 0.2s;
         }
-
         .affiliate a:hover {
             color: var(--green);
+        }
+
+        .tip {
+            margin-top: 16px;
+            text-align: center;
+        }
+        .tip a {
+            font-size: 13px;
+            color: var(--green-muted);
+            text-decoration: none;
+            opacity: 0.7;
+            transition: opacity 0.2s;
+        }
+        .tip a:hover {
+            opacity: 1;
         }
 
         .ad-unit {
@@ -276,7 +241,6 @@
         }
     </style>
 </head>
-
 <body>
     <div class="container" id="mainContainer">
         <div id="loginForm">
@@ -323,8 +287,12 @@
 
             <!-- Affiliate link -->
             <div class="affiliate">
-                <a href="https://www.golftec.com" target="_blank" rel="noopener sponsored">Maybe lessons would help?
-                    →</a>
+                <a href="https://www.callawaygolfpreowned.com/?utm_source=roastmygolfgame&utm_medium=affiliate" target="_blank" rel="noopener sponsored">Maybe new clubs would help? →</a>
+            </div>
+
+            <!-- Tip jar -->
+            <div class="tip">
+                <a href="https://ko-fi.com/billyrestey" target="_blank" rel="noopener">Donate 🍺</a>
             </div>
 
             <!-- AdSense unit -->
@@ -424,14 +392,14 @@
             const name = $('name').textContent;
             const handicap = $('handicap').textContent;
             const roast = $('roast').textContent;
-
+            
             // Truncate roast for tweet (leave room for URL and hashtag)
             const maxRoast = 200;
             const truncatedRoast = roast.length > maxRoast ? roast.substring(0, maxRoast) + '...' : roast;
-
+            
             const text = `"${truncatedRoast}"\n\nGet roasted at`;
             const url = window.location.href;
-
+            
             window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}`, '_blank');
         }
 
@@ -442,41 +410,41 @@
             const contentWidth = 520;
             const canvasWidth = contentWidth + (padding * 2);
             const canvasHeight = 480;
-
+            
             const canvas = document.createElement('canvas');
             const ctx = canvas.getContext('2d');
-
+            
             canvas.width = canvasWidth * scale;
             canvas.height = canvasHeight * scale;
             ctx.scale(scale, scale);
-
+            
             // Background
             ctx.fillStyle = '#e8f0ec';
             ctx.fillRect(0, 0, canvasWidth, canvasHeight);
-
+            
             // Header bar
             ctx.fillStyle = '#2d5a45';
             ctx.fillRect(0, 0, canvasWidth, 50);
-
+            
             // Title in header
             ctx.fillStyle = '#fff';
             ctx.font = '500 11px Inter, -apple-system, sans-serif';
             ctx.letterSpacing = '0.5px';
             ctx.fillText('ROASTMYGOLFGAME.COM', padding, 30);
-
+            
             // Name and handicap
             const name = $('name').textContent;
             const handicap = $('handicap').textContent;
-
+            
             ctx.fillStyle = '#2d5a45';
             ctx.font = '600 24px Inter, -apple-system, sans-serif';
             ctx.fillText(name, padding, 110);
-
+            
             // Right-align handicap
             ctx.font = '300 48px Inter, -apple-system, sans-serif';
             const handicapWidth = ctx.measureText(handicap).width;
             ctx.fillText(handicap, canvasWidth - padding - handicapWidth, 110);
-
+            
             // Divider
             ctx.strokeStyle = '#ccd5cf';
             ctx.lineWidth = 1;
@@ -484,18 +452,18 @@
             ctx.moveTo(padding, 135);
             ctx.lineTo(canvasWidth - padding, 135);
             ctx.stroke();
-
+            
             // Roast text (word wrap)
             const roast = $('roast').textContent;
             ctx.fillStyle = '#333';
             ctx.font = '400 16px Inter, -apple-system, sans-serif';
-
+            
             const words = roast.split(' ');
             let line = '';
             let y = 175;
             const maxWidth = contentWidth;
             const lineHeight = 28;
-
+            
             for (let word of words) {
                 const testLine = line + word + ' ';
                 if (ctx.measureText(testLine).width > maxWidth) {
@@ -511,7 +479,7 @@
                 }
             }
             if (y <= 440 && line.trim()) ctx.fillText(line.trim(), padding, y);
-
+            
             // Download
             const link = document.createElement('a');
             link.download = `roast-${name.replace(/\s+/g, '-').toLowerCase()}.png`;
@@ -531,5 +499,4 @@
         $('ghin').addEventListener('keypress', e => { if (e.key === 'Enter') $('password').focus(); });
     </script>
 </body>
-
 </html>
