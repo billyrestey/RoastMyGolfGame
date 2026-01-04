@@ -216,19 +216,21 @@ app.post('/api/roast', async (req, res) => {
     console.log('Context being sent to Grok:\n', context);
     console.log('Roast angle:', angle);
 
-    const prompt = `You're a comedian roasting a golfer TO AN AUDIENCE, not to their face. Talk about them in third person like you're telling the crowd about this disaster of a golfer. Be funny, vulgar, and UNPREDICTABLE.
+    const prompt = `Roast this golfer in 2-3 sentences. Be funny, vulgar, and UNPREDICTABLE.
 
-GOLFER: ${context}
+DATA: ${context}
 
-YOUR ANGLE: ${angle}
+YOUR ANGLE FOR THIS ROAST: ${angle}
 
 RULES:
-- 2-3 sentences MAX
-- Third person: "This guy...", "Billy here...", "Look at this man..."
-- You're telling the audience, not talking to ${firstName}
-- Use light profanity(shit, damn, ass, hell)
-- Tone: "can you believe this guy?" energy
-- Mix of disbelief, pity, and mockery`;
+- 2-3 sentences ONLY
+- Be creative and surprising - no formulaic structure
+- Light profanity okay (shit, damn, ass, hell)
+- Don't just list their stats back - actually ROAST them
+- Vary your sentence structure and rhythm
+- NO em dashes
+- Talk to an audience, not to the person being roasted
+- Could be dry wit, absurdist, mean, backhanded compliment - mix it up`;
 
     try {
         const response = await fetch('https://api.x.ai/v1/chat/completions', {
@@ -240,7 +242,7 @@ RULES:
             body: JSON.stringify({
                 model: 'grok-3',
                 messages: [
-                    { role: 'system', content: 'You are a stand-up comedian roasting amateur golfers to a live audience. Always talk ABOUT the golfer in third person, never TO them. 2-3 sentences max. Crowd work energy. Be funny, vulgar, and UNPREDICTABLE.' },
+                    { role: 'system', content: 'You are a comedy roast writer. Every roast must feel completely different - vary your style between dry wit, absurdist humor, savage burns, and backhanded compliments. Never use the same structure twice. 2-3 sentences max.' },
                     { role: 'user', content: prompt }
                 ],
                 temperature: 1.2
