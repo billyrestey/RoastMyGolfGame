@@ -367,73 +367,79 @@
         async function saveImage() {
             // Create a canvas to render the roast as an image (2x resolution for crisp output)
             const scale = 2.5;
+            const padding = 40;
+            const contentWidth = 520;
+            const canvasWidth = contentWidth + (padding * 2);
+            const canvasHeight = 480;
+            
             const canvas = document.createElement('canvas');
             const ctx = canvas.getContext('2d');
             
-            canvas.width = 600 * scale;
-            canvas.height = 400 * scale;
+            canvas.width = canvasWidth * scale;
+            canvas.height = canvasHeight * scale;
             ctx.scale(scale, scale);
             
             // Background
             ctx.fillStyle = '#e8f0ec';
-            ctx.fillRect(0, 0, 600, 400);
+            ctx.fillRect(0, 0, canvasWidth, canvasHeight);
             
             // Header bar
             ctx.fillStyle = '#2d5a45';
-            ctx.fillRect(0, 0, 600, 60);
+            ctx.fillRect(0, 0, canvasWidth, 50);
             
-            // Title
+            // Title in header
             ctx.fillStyle = '#fff';
-            ctx.font = '400 12px Inter, -apple-system, sans-serif';
-            ctx.fillText('ROASTMYGOLFGAME.COM', 18, 24);
+            ctx.font = '500 11px Inter, -apple-system, sans-serif';
+            ctx.letterSpacing = '0.5px';
+            ctx.fillText('ROASTMYGOLFGAME.COM', padding, 30);
             
             // Name and handicap
             const name = $('name').textContent;
             const handicap = $('handicap').textContent;
             
             ctx.fillStyle = '#2d5a45';
-            ctx.font = '600 22px Inter, -apple-system, sans-serif';
-            ctx.fillText(name, 24, 105);
+            ctx.font = '600 24px Inter, -apple-system, sans-serif';
+            ctx.fillText(name, padding, 110);
             
             // Right-align handicap
-            ctx.font = '300 44px Inter, -apple-system, sans-serif';
+            ctx.font = '300 48px Inter, -apple-system, sans-serif';
             const handicapWidth = ctx.measureText(handicap).width;
-            ctx.fillText(handicap, 600 - 24 - handicapWidth, 105);
+            ctx.fillText(handicap, canvasWidth - padding - handicapWidth, 110);
             
             // Divider
             ctx.strokeStyle = '#ccd5cf';
             ctx.lineWidth = 1;
             ctx.beginPath();
-            ctx.moveTo(24, 125);
-            ctx.lineTo(576, 125);
+            ctx.moveTo(padding, 135);
+            ctx.lineTo(canvasWidth - padding, 135);
             ctx.stroke();
             
             // Roast text (word wrap)
             const roast = $('roast').textContent;
             ctx.fillStyle = '#333';
-            ctx.font = '400 15px Inter, -apple-system, sans-serif';
+            ctx.font = '400 16px Inter, -apple-system, sans-serif';
             
             const words = roast.split(' ');
             let line = '';
-            let y = 160;
-            const maxWidth = 552;
-            const lineHeight = 24;
+            let y = 175;
+            const maxWidth = contentWidth;
+            const lineHeight = 28;
             
             for (let word of words) {
                 const testLine = line + word + ' ';
                 if (ctx.measureText(testLine).width > maxWidth) {
-                    ctx.fillText(line.trim(), 24, y);
+                    ctx.fillText(line.trim(), padding, y);
                     line = word + ' ';
                     y += lineHeight;
-                    if (y > 370) {
-                        ctx.fillText(line.trim() + '...', 24, y);
+                    if (y > 440) {
+                        ctx.fillText(line.trim() + '...', padding, y);
                         break;
                     }
                 } else {
                     line = testLine;
                 }
             }
-            if (y <= 370 && line.trim()) ctx.fillText(line.trim(), 24, y);
+            if (y <= 440 && line.trim()) ctx.fillText(line.trim(), padding, y);
             
             // Download
             const link = document.createElement('a');
