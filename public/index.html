@@ -503,7 +503,7 @@
 
         async function saveImage() {
             const scale = 2.5;
-            const padding = 40;
+            const padding = 100;
             const contentWidth = 520;
             const canvasWidth = contentWidth + (padding * 2);
             const canvasHeight = 480;
@@ -525,8 +525,8 @@
             
             // Title in header
             ctx.fillStyle = '#fff';
-            ctx.font = '600 11px Inter, -apple-system, sans-serif';
-            ctx.fillText('ROASTMYGOLFGAME.COM', padding, 30);
+            ctx.font = '400 8px Inter, -apple-system, sans-serif';
+            ctx.fillText('ROASTMYGOLFGAME.COM', padding, 50);
             
             // Name and handicap
             const name = $('name').textContent;
@@ -538,7 +538,7 @@
             
             // Red accent line
             ctx.fillStyle = '#c8102e';
-            ctx.fillRect(padding, 120, 40, 3);
+            ctx.fillRect(padding, 120, 60, 3);
             
             // Right-align handicap
             ctx.fillStyle = '#00205b';
