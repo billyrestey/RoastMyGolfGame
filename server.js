@@ -231,16 +231,24 @@ app.post('/api/roast', async (req, res) => {
 
     // Add score highlights if available
     if (scores.length > 0) {
-        const recentScores = scores.slice(0, 6);
-        let worstRound = { diff: 0 };
+        const recentScores = scores.slice(0, 10);
+        let worstRound = { score: 0 };  // Highest raw score = worst for roasting
+        let bestRound = { score: 999 }; // Lowest raw score = best
         let worstHole = null;
 
         recentScores.forEach((score) => {
             const courseName = score.facility_name || score.course_name || 'Unknown';
+            const rawScore = parseInt(score.adjusted_gross_score) || 0;
             const differential = parseFloat(score.differential) || 0;
             
-            if (differential > worstRound.diff) {
-                worstRound = { score: score.adjusted_gross_score, course: courseName, diff: differential };
+            // Track highest score (worst round for roasting purposes)
+            if (rawScore > worstRound.score) {
+                worstRound = { score: rawScore, course: courseName, diff: differential };
+            }
+            
+            // Track lowest score (best round - useful for "peaked" jokes)
+            if (rawScore > 0 && rawScore < bestRound.score) {
+                bestRound = { score: rawScore, course: courseName, diff: differential };
             }
             
             if (score.worst_hole && score.worst_hole.over >= 3) {
@@ -250,8 +258,12 @@ app.post('/api/roast', async (req, res) => {
             }
         });
 
-        if (worstRound.course) {
-            context += `\nWorst round: ${worstRound.score} at ${worstRound.course} (${worstRound.diff.toFixed(1)} diff)`;
+        if (worstRound.score > 0) {
+            context += `\nWorst recent round: Shot ${worstRound.score} at ${worstRound.course}`;
+        }
+        
+        if (bestRound.score < 999) {
+            context += `\nBest recent round: Shot ${bestRound.score} at ${bestRound.course}`;
         }
         
         if (worstHole) {
