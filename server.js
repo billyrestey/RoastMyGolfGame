@@ -6,13 +6,79 @@ const path = require('path');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+// === SECURITY & RATE LIMITING ===
+
+// Simple in-memory rate limiter
+const rateLimitMap = new Map();
+const RATE_LIMIT_WINDOW = 60 * 1000; // 1 minute
+const RATE_LIMIT_MAX = 10; // 10 requests per minute per IP
+
+function rateLimit(req, res, next) {
+    const ip = req.headers['x-forwarded-for']?.split(',')[0] || req.ip || 'unknown';
+    const now = Date.now();
+    
+    if (!rateLimitMap.has(ip)) {
+        rateLimitMap.set(ip, { count: 1, resetTime: now + RATE_LIMIT_WINDOW });
+        return next();
+    }
+    
+    const record = rateLimitMap.get(ip);
+    
+    if (now > record.resetTime) {
+        record.count = 1;
+        record.resetTime = now + RATE_LIMIT_WINDOW;
+        return next();
+    }
+    
+    if (record.count >= RATE_LIMIT_MAX) {
+        return res.status(429).json({ error: 'Too many requests. Please wait a minute.' });
+    }
+    
+    record.count++;
+    next();
+}
+
+// Clean up old rate limit entries every 5 minutes
+setInterval(() => {
+    const now = Date.now();
+    for (const [ip, record] of rateLimitMap.entries()) {
+        if (now > record.resetTime) {
+            rateLimitMap.delete(ip);
+        }
+    }
+}, 5 * 60 * 1000);
+
+// Security headers
+app.use((req, res, next) => {
+    res.setHeader('X-Content-Type-Options', 'nosniff');
+    res.setHeader('X-Frame-Options', 'DENY');
+    res.setHeader('X-XSS-Protection', '1; mode=block');
+    res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
+    next();
+});
+
 app.use(cors());
-app.use(express.json({ limit: '10mb' }));
+app.use(express.json({ limit: '1mb' })); // Reduced from 10mb
 app.use(express.static('public'));
+
+// Apply rate limiting to API routes only
+app.use('/api', rateLimit);
+
+// Input validation helper
+function sanitizeInput(str, maxLength = 100) {
+    if (typeof str !== 'string') return '';
+    return str.trim().slice(0, maxLength);
+}
 
 // GHIN Login endpoint - returns golfer data + token for subsequent requests
 app.post('/api/ghin', async (req, res) => {
-    const { email_or_ghin, password } = req.body;
+    const email_or_ghin = sanitizeInput(req.body.email_or_ghin, 50);
+    const password = req.body.password; // Don't truncate password, but validate type
+    
+    // Input validation
+    if (!email_or_ghin || typeof password !== 'string' || !password) {
+        return res.status(400).json({ error: 'Invalid input' });
+    }
 
     try {
         const response = await fetch('https://api2.ghin.com/api/v1/golfer_login.json', {

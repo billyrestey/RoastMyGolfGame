@@ -83,6 +83,15 @@
         button:hover { background: #1e3d2e; }
         button:disabled { background: #aab8af; cursor: not-allowed; }
 
+        .privacy-note {
+            margin-top: 20px;
+            font-size: 11px;
+            color: var(--green-muted);
+            text-align: center;
+            line-height: 1.5;
+            opacity: 0.8;
+        }
+
         .error {
             font-size: 13px;
             color: #c0392b;
@@ -259,6 +268,10 @@
             </div>
 
             <button onclick="roastMe()">Get Roasted</button>
+            
+            <div class="privacy-note">
+                🔒 Your credentials are only used to fetch your handicap data from GHIN and are never stored on our servers.
+            </div>
         </div>
 
         <div class="loading" id="loading">
