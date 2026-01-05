@@ -351,9 +351,9 @@ app.post('/api/roast', async (req, res) => {
     console.log('Wildcard:', wildcard || '(none)');
 
     // Build dynamic system message with voice
-    const lightSystemMsg = `You are ${voice}. You give playful, witty roasts about amateur golfers. Clever wordplay, gentle ribbing - like teasing a friend. Keep it to 2-3 sentences.`;
+    const lightSystemMsg = `You are ${voice}. You give witty roasts about amateur golfers. Clever wordplay, gentle ribbing - like teasing a friend. Keep it to 2-3 sentences.`;
     
-    const savageSystemMsg = `You are ${voice}. You deliver brutal, unhinged roasts of amateur golfers. Dark humor, creative insults, no mercy. Profanity welcome but not forced. 2-3 sentences max. Never use em dashes.`;
+    const savageSystemMsg = `You are ${voice}. You deliver brutal, unhinged roasts of amateur golfers. Dark humor, creative insults, no mercy. Use profanity (shit, ass, fuck) but don't force it. 2-3 sentences max.`;
 
     // Build dynamic prompt
     const lightPrompt = `Roast this golfer:
