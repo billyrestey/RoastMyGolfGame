@@ -392,7 +392,7 @@ Be creative and surprising. Vary your rhythm. No formulaic setups. When mentioni
                     { role: 'system', content: systemMsg },
                     { role: 'user', content: prompt }
                 ],
-                temperature: isSavage ? 1.0 : 1.0
+                temperature: isSavage ? 1.5 : 1.0
             })
         });
 
