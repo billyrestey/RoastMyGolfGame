@@ -333,11 +333,11 @@
                 <div class="form-group">
                     <label>Roast Intensity</label>
                     <div class="intensity-toggle">
-                        <button type="button" class="intensity-option" data-intensity="light" onclick="setIntensity('light')">
+                        <button type="button" class="intensity-option active" data-intensity="light" onclick="setIntensity('light')">
                             <span class="icon">😏</span>
                             Light Roast
                         </button>
-                        <button type="button" class="intensity-option active" data-intensity="savage" onclick="setIntensity('savage')">
+                        <button type="button" class="intensity-option" data-intensity="savage" onclick="setIntensity('savage')">
                             <span class="icon">🔥</span>
                             Savage
                         </button>
@@ -390,7 +390,7 @@
 
     <script>
         const $ = id => document.getElementById(id);
-        let selectedIntensity = 'savage';
+        let selectedIntensity = 'light';
         let currentGolferData = null;
 
         function setIntensity(intensity) {
