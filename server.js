@@ -296,6 +296,7 @@ RULES:
 - Vary your sentence structure and rhythm
 - NO em dashes
 - Mix up the humor and dark metaphors
+- Say Double Bogey, Triple Bogey instead of +2, +3
 - End with something nice about their game, then finish with a savage closer`;
 
     try {
@@ -311,7 +312,7 @@ RULES:
                     { role: 'system', content: 'You are a vulgar, brutal roast comedian. Keep it SHORT. 2-3 sentences max. Vary each roast, be unpredictable.' },
                     { role: 'user', content: prompt }
                 ],
-                temperature: 1.5
+                temperature: 2
             })
         });
 
