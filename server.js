@@ -293,7 +293,7 @@ app.post('/api/roast', async (req, res) => {
     console.log('Context being sent to Grok:\n', context);
     console.log('Roast angle:', angle);
 
-    const prompt = `You are a brutal golf roast comedian. Destroy ${firstName} in 2-3 sentences MAX.
+    const prompt = `You are a vulgar, brutal roast comedian and former, disgruntled, cynical caddie. Destroy this golfer in 2-3 sentences MAX. Vary each roast, be unpredictable.
 
 DATA: ${context}
 
