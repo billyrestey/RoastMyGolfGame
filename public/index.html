@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Roast My Golf Game</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔥</text></svg>">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -187,7 +188,6 @@
             align-items: flex-start;
             margin-bottom: 24px;
             padding-bottom: 20px;
-            padding-top: 40px;
             border-bottom: 1px solid #e5e7eb;
         }
         .result-name {
@@ -504,10 +504,10 @@
 
         async function saveImage() {
             const scale = 2.5;
-            const padding = 100;
-            const contentWidth = 520;
+            const padding = 50;
+            const contentWidth = 500;
             const canvasWidth = contentWidth + (padding * 2);
-            const canvasHeight = 480;
+            const canvasHeight = 520;
             
             const canvas = document.createElement('canvas');
             const ctx = canvas.getContext('2d');
@@ -520,43 +520,38 @@
             ctx.fillStyle = '#ffffff';
             ctx.fillRect(0, 0, canvasWidth, canvasHeight);
             
-            // Header bar
-            ctx.fillStyle = '#00205b';
-            ctx.fillRect(0, 0, canvasWidth, 50);
-            
-            // Title in header
-            ctx.fillStyle = '#fff';
-            ctx.font = '400 10px Inter, -apple-system, sans-serif';
-            ctx.fillText('ROASTMYGOLFGAME.COM', padding, 30);
-            
-            // Name and handicap
+            // Name and handicap (matching result page layout)
             const name = $('name').textContent;
             const handicap = $('handicap').textContent;
             
+            // Name
             ctx.fillStyle = '#00205b';
-            ctx.font = '700 24px Inter, -apple-system, sans-serif';
-            ctx.fillText(name, padding, 110);
-            
-            // Red accent line
-            ctx.fillStyle = '#c8102e';
-            ctx.fillRect(padding, 120, 60, 3);
+            ctx.font = '700 28px Inter, -apple-system, sans-serif';
+            ctx.fillText(name, padding, padding + 30);
             
             // Right-align handicap
-            ctx.fillStyle = '#00205b';
-            ctx.font = '300 48px Inter, -apple-system, sans-serif';
+            ctx.font = '300 52px Inter, -apple-system, sans-serif';
             const handicapWidth = ctx.measureText(handicap).width;
-            ctx.fillText(handicap, canvasWidth - padding - handicapWidth, 110);
+            ctx.fillText(handicap, canvasWidth - padding - handicapWidth, padding + 35);
+            
+            // Divider line
+            ctx.strokeStyle = '#e5e7eb';
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.moveTo(padding, padding + 55);
+            ctx.lineTo(canvasWidth - padding, padding + 55);
+            ctx.stroke();
             
             // Roast text (word wrap)
             const roast = $('roast').textContent;
             ctx.fillStyle = '#374151';
-            ctx.font = '400 16px Inter, -apple-system, sans-serif';
+            ctx.font = '400 17px Inter, -apple-system, sans-serif';
             
             const words = roast.split(' ');
             let line = '';
-            let y = 170;
+            let y = padding + 95;
             const maxWidth = contentWidth;
-            const lineHeight = 28;
+            const lineHeight = 30;
             
             for (let word of words) {
                 const testLine = line + word + ' ';
@@ -564,7 +559,7 @@
                     ctx.fillText(line.trim(), padding, y);
                     line = word + ' ';
                     y += lineHeight;
-                    if (y > 440) {
+                    if (y > canvasHeight - 60) {
                         ctx.fillText(line.trim() + '...', padding, y);
                         break;
                     }
@@ -572,7 +567,14 @@
                     line = testLine;
                 }
             }
-            if (y <= 440 && line.trim()) ctx.fillText(line.trim(), padding, y);
+            if (y <= canvasHeight - 60 && line.trim()) ctx.fillText(line.trim(), padding, y);
+            
+            // URL at bottom
+            ctx.fillStyle = '#9ca3af';
+            ctx.font = '500 12px Inter, -apple-system, sans-serif';
+            const urlText = 'roastmygolfgame.com';
+            const urlWidth = ctx.measureText(urlText).width;
+            ctx.fillText(urlText, (canvasWidth - urlWidth) / 2, canvasHeight - padding + 10);
             
             // Download
             const link = document.createElement('a');
