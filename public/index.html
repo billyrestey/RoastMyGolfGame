@@ -12,10 +12,9 @@
         * { margin: 0; padding: 0; box-sizing: border-box; }
 
         :root {
-            --navy: #00205b;
-            --navy-light: #1a3a6e;
-            --red: #c8102e;
-            --red-dark: #a00d25;
+            --green: #006747;
+            --green-light: #0a7d57;
+            --green-dark: #005238;
             --gray-light: #f5f5f5;
             --gray: #6b7280;
             --gray-dark: #374151;
@@ -45,21 +44,13 @@
         h1 {
             font-size: 32px;
             font-weight: 700;
-            color: var(--navy);
+            color: var(--green);
             margin-bottom: 8px;
         }
         .subtitle {
             font-size: 15px;
             color: var(--gray);
             margin-bottom: 20px;
-        }
-        .subtitle::after {
-            content: '';
-            display: block;
-            width: 40px;
-            height: 3px;
-            background: var(--red);
-            margin-top: 16px;
         }
 
         .form-group { margin-bottom: 24px; }
@@ -86,8 +77,8 @@
         }
         input:focus {
             outline: none;
-            border-color: var(--navy);
-            box-shadow: 0 0 0 3px rgba(0, 32, 91, 0.1);
+            border-color: var(--green);
+            box-shadow: 0 0 0 3px rgba(0, 103, 71, 0.1);
         }
         input::placeholder { color: #9ca3af; }
 
@@ -112,12 +103,12 @@
             text-align: center;
         }
         .intensity-option:hover {
-            border-color: var(--navy);
+            border-color: var(--green);
         }
         .intensity-option.active {
-            background: var(--navy);
+            background: var(--green);
             color: #fff;
-            border-color: var(--navy);
+            border-color: var(--green);
         }
         .intensity-option .icon {
             display: block;
@@ -131,7 +122,7 @@
             font-size: 14px;
             font-weight: 600;
             font-family: inherit;
-            background: var(--red);
+            background: var(--green);
             color: #fff;
             border: none;
             border-radius: 4px;
@@ -140,7 +131,7 @@
             text-transform: uppercase;
             letter-spacing: 0.05em;
         }
-        button.primary:hover { background: var(--red-dark); }
+        button.primary:hover { background: var(--green-dark); }
         button.primary:disabled { background: #d1d5db; cursor: not-allowed; }
 
         .privacy-note {
@@ -153,7 +144,7 @@
 
         .error {
             font-size: 13px;
-            color: var(--red);
+            color: var(--green);
             margin-bottom: 20px;
             padding: 12px;
             background: #fef2f2;
@@ -173,7 +164,7 @@
             width: 28px;
             height: 28px;
             border: 3px solid #e5e7eb;
-            border-top-color: var(--navy);
+            border-top-color: var(--green);
             border-radius: 50%;
             margin: 0 auto 16px;
             animation: spin 0.8s linear infinite;
@@ -195,7 +186,7 @@
         .result-name {
             font-size: 24px;
             font-weight: 700;
-            color: var(--navy);
+            color: var(--green);
         }
         .result-club {
             font-size: 13px;
@@ -205,7 +196,7 @@
         .result-handicap {
             font-size: 48px;
             font-weight: 300;
-            color: var(--navy);
+            color: var(--green);
             line-height: 1;
         }
 
@@ -222,14 +213,14 @@
             font-size: 14px;
             font-weight: 600;
             font-family: inherit;
-            background: var(--navy);
+            background: var(--green);
             color: #fff;
             border: none;
             border-radius: 4px;
             cursor: pointer;
             transition: background 0.2s;
         }
-        .share-btn:hover { background: var(--navy-light); }
+        .share-btn:hover { background: var(--green-light); }
 
         .share-options {
             display: none;
@@ -251,8 +242,8 @@
             transition: all 0.2s;
         }
         .share-save:hover, .share-x:hover {
-            border-color: var(--navy);
-            color: var(--navy);
+            border-color: var(--green);
+            color: var(--green);
         }
 
         .again {
@@ -270,8 +261,8 @@
             transition: all 0.2s;
         }
         .again:hover {
-            border-color: var(--navy);
-            color: var(--navy);
+            border-color: var(--green);
+            color: var(--green);
         }
 
         .affiliate {
@@ -285,7 +276,7 @@
             transition: color 0.2s;
         }
         .affiliate a:hover {
-            color: var(--navy);
+            color: var(--green);
         }
 
         .tip {
@@ -527,7 +518,7 @@
             const handicap = $('handicap').textContent;
             
             // Name
-            ctx.fillStyle = '#00205b';
+            ctx.fillStyle = '#006747';
             ctx.font = '700 28px Inter, -apple-system, sans-serif';
             ctx.fillText(name, padding, padding + 30);
             
