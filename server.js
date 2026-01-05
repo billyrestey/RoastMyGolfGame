@@ -204,7 +204,7 @@ function findWorstHole(holeDetails) {
 
 // Roast generation endpoint - using Grok API
 app.post('/api/roast', async (req, res) => {
-    const { golferData } = req.body;
+    const { golferData, intensity = 'light' } = req.body;
     const XAI_API_KEY = process.env.XAI_API_KEY;
 
     if (!XAI_API_KEY) {
@@ -217,10 +217,12 @@ app.post('/api/roast', async (req, res) => {
     const clubName = golferData.club_name || 'some random club';
     const scores = golferData.recent_scores || [];
     const firstName = playerName.split(' ')[0];
+    const isSavage = intensity === 'savage';
 
     console.log('=== ROAST REQUEST ===');
     console.log('Player:', playerName);
     console.log('Handicap:', handicap);
+    console.log('Intensity:', intensity);
     console.log('Scores available:', scores.length);
 
     // Build context with basic info
@@ -232,8 +234,8 @@ app.post('/api/roast', async (req, res) => {
     // Add score highlights if available
     if (scores.length > 0) {
         const recentScores = scores.slice(0, 10);
-        let worstRound = { score: 0 };  // Highest raw score = worst for roasting
-        let bestRound = { score: 999 }; // Lowest raw score = best
+        let worstRound = { score: 0 };
+        let bestRound = { score: 999 };
         let worstHole = null;
 
         recentScores.forEach((score) => {
@@ -241,12 +243,10 @@ app.post('/api/roast', async (req, res) => {
             const rawScore = parseInt(score.adjusted_gross_score) || 0;
             const differential = parseFloat(score.differential) || 0;
             
-            // Track highest score (worst round for roasting purposes)
             if (rawScore > worstRound.score) {
                 worstRound = { score: rawScore, course: courseName, diff: differential };
             }
             
-            // Track lowest score (best round - useful for "peaked" jokes)
             if (rawScore > 0 && rawScore < bestRound.score) {
                 bestRound = { score: rawScore, course: courseName, diff: differential };
             }
@@ -285,31 +285,47 @@ app.post('/api/roast', async (req, res) => {
         'Focus on their HANDICAP NUMBER itself - what it says about them as a person',
         'Focus on their CONSISTENCY (or lack thereof) - the rollercoaster',
         'Focus on HOW LONG theyve probably played vs how bad they still are',
-        'Focus on the MONEY theyve wasted on this hobby, buying the latest Driver, overspending on shafts, slicing or hooking Pro V1s out of bounds, flying to Bandon to shoot their career low',
-        'Focus on their DELUSION - they probably think theyre better than this, that they have a pretty swing, they attack the pin, they drain putts',
+        'Focus on the MONEY theyve wasted on this hobby, buying the latest Driver, overspending on shafts, slicing or hooking Pro V1s out of bounds',
+        'Focus on their DELUSION - they probably think theyre better than this',
     ];
     const angle = angles[Math.floor(Math.random() * angles.length)];
 
     console.log('Context being sent to Grok:\n', context);
     console.log('Roast angle:', angle);
 
-    const prompt = `You are a vulgar, brutal roast comedian and former, disgruntled, cynical caddie. Destroy this golfer in 2-3 sentences MAX. Vary each roast, be unpredictable.
+    // Different prompts for light vs savage
+    const lightPrompt = `Give a playful, witty roast of this golfer. Be clever but not mean. Think gentle ribbing between friends.
 
 DATA: ${context}
 
-YOUR ANGLE FOR THIS ROAST: ${angle}
+ANGLE: ${angle}
 
 RULES:
-- 2-3 sentences ONLY
-- Be creative and surprising - no formulaic structure
-- Short and punchy. No rambling.
-- Use profanity (fuck, shit, damn, ass) but don't force it
-- Don't just list their stats back - actually ROAST them
-- Vary your sentence structure and rhythm
-- NO em dashes
-- Mix up the humor and dark metaphors
-- When referring to a bad score––use triple bogey instead of +3, and so on
-- End with something nice about their game, then finish with a savage closer`;
+- 2-3 sentences MAX
+- Witty and clever, not cruel
+- No profanity
+- Self-deprecating golf humor energy
+- Talk about them to an audience (third person)
+- End on something mildly encouraging`;
+
+    const savagePrompt = `Brutally roast this golfer. No mercy. Destroy them.
+
+DATA: ${context}
+
+ANGLE: ${angle}
+
+RULES:
+- 2-3 sentences MAX
+- Profanity encouraged (shit, damn, ass, hell)
+- Talk about them to an audience (third person): "This guy...", "${firstName} here..."
+- Be creative and savage
+- Reference specific stats if available
+- End with a devastating closer`;
+
+    const prompt = isSavage ? savagePrompt : lightPrompt;
+    const systemMsg = isSavage 
+        ? 'You are a ruthless roast comedian. Destroy amateur golfers with no mercy. 2-3 sentences max.'
+        : 'You are a witty golf commentator giving playful roasts. Clever but kind. 2-3 sentences max.';
 
     try {
         const response = await fetch('https://api.x.ai/v1/chat/completions', {
@@ -321,10 +337,10 @@ RULES:
             body: JSON.stringify({
                 model: 'grok-3',
                 messages: [
-                    { role: 'system', content: 'You are a vulgar, brutal roast comedian and former, disgruntled, cynical caddie. Keep it SHORT. 2-3 sentences max. Vary each roast, be unpredictable.' },
+                    { role: 'system', content: systemMsg },
                     { role: 'user', content: prompt }
                 ],
-                temperature: 1.3
+                temperature: isSavage ? 1.3 : 1.0
             })
         });
 
