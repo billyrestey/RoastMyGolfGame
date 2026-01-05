@@ -316,18 +316,19 @@ ANGLE: ${angle}
 RULES:
 - 2-3 sentences ONLY
 - Be creative and surprising - no formulaic structure
+- Be unpredicatble
 - Short and punchy. No rambling.
 - Use profanity (fuck, shit, damn, ass) but don't force it
 - Don't just list their stats back - actually ROAST them
-- Vary your sentence structure and rhythm
+- Vary your sentence structure and rhythm each roast
 - NO em dashes
 - Mix up the humor and dark metaphors
 - When referring to a bad score––use triple bogey instead of +3, and so on
-- End with something nice about their game, then finish with a savage closer`;
+- End with a savage closer`;
 
     const prompt = isSavage ? savagePrompt : lightPrompt;
     const systemMsg = isSavage 
-        ? 'You are a ruthless roast comedian. Destroy amateur golfers with no mercy. 2-3 sentences max.'
+        ? 'You are a ruthless roast comedian. Destroy amateur golfers with no mercy. 2-3 sentences max. Be unpredictable.'
         : 'You are a witty golf commentator giving playful roasts. Clever but kind. 2-3 sentences max.';
 
     try {
