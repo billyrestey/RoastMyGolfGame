@@ -276,60 +276,108 @@ app.post('/api/roast', async (req, res) => {
         }
     }
 
-    // Pick a random roast angle to force variety
-    const angles = [
-        'Focus on their CLUB MEMBERSHIP - mock paying dues to embarrass themselves',
-        'Focus on the GAP between their low handicap and current state - they peaked and fell off',
-        'Focus on ONE SPECIFIC HOLE disaster - make it vivid and painful',
-        'Focus on their WORST ROUND - paint a picture of that day',
-        'Focus on their HANDICAP NUMBER itself - what it says about them as a person',
-        'Focus on their CONSISTENCY (or lack thereof) - the rollercoaster',
-        'Focus on HOW LONG theyve probably played vs how bad they still are',
-        'Focus on the MONEY theyve wasted on this hobby, buying the latest Driver, overspending on shafts, slicing or hooking Pro V1s out of bounds',
-        'Focus on their DELUSION - they probably think theyre better than this',
+    // === LAYERED RANDOMIZATION ===
+    
+    // Layer 1: Voice/Persona (WHO is delivering the roast)
+    const voices = [
+        'a disappointed caddie who\'s seen too much and is tired of carrying bags for hackers',
+        'a sarcastic golf commentator caught on a hot mic',
+        'their golf clubs writing a collective resignation letter',
+        'a brutally honest swing coach who just watched their lesson video',
+        'a country club bartender who\'s heard all their excuses for 10 years',
+        'a golf cart that has witnessed every shanked shot',
+        'their playing partners talking behind their back at the 19th hole',
+        'a pro shop employee who has to keep a straight face',
+        'the course marshal who\'s been watching them all day',
+        'a sports psychologist who just gave up on them',
+        'a local golf journalist writing their obituary... for their golf career',
+        'someone reading their stats at a roast dinner',
     ];
+    
+    // Layer 2: Angle (WHAT to focus on)
+    const angles = [
+        'their club membership and paying dues just to embarrass themselves',
+        'the gap between their low handicap and current state - they peaked and fell off hard',
+        'one specific hole disaster - make it vivid and painful',
+        'their worst round - paint a picture of that miserable day',
+        'what their handicap number says about them as a human being',
+        'their wild inconsistency - the emotional rollercoaster of their game',
+        'how long they\'ve probably played vs how bad they still are',
+        'the money they\'ve wasted on equipment that can\'t fix their swing',
+        'their delusion - they definitely think they\'re better than this',
+        'comparing them to a specific embarrassing thing (a 3-putt, a skulled chip, etc)',
+        'their practice habits (or lack thereof)',
+        'the excuses they probably make after every bad shot',
+    ];
+    
+    // Layer 3: Format (HOW to structure the roast)
+    const formats = [
+        'One long devastating sentence that just keeps twisting the knife.',
+        'Two short punches. Jab, jab. Done.',
+        'Start with a genuine compliment, then pull the rug out violently.',
+        'A rhetorical question that painfully answers itself.',
+        'Deadpan factual delivery. No jokes. Just stating painful truths.',
+        'Build them up for two sentences, then destroy them in the last few words.',
+        'Compare their golf game to something absurd and unexpected.',
+        'Speak directly to them like you\'re giving them bad news at the doctor.',
+        'A fake golf commentary call of their typical shot.',
+        'Start mid-thought like you\'ve been ranting about them for a while.',
+    ];
+    
+    // Layer 4: Wild cards (random modifiers to prevent patterns)
+    const wildcards = [
+        'Use exactly one very specific number or stat to make it sting.',
+        'Mention a specific club (driver, putter, 7-iron) in your roast.',
+        'Reference the weather or course conditions sarcastically.',
+        'Include a fake quote from someone who watched them play.',
+        'Mention something they probably do on the first tee.',
+        'Reference their pre-shot routine or lack thereof.',
+        'Compare them to a specific famous bad golf moment.',
+        'Mention what their playing partners are probably thinking.',
+        '', // Sometimes no wildcard
+        '', // Weighted toward no wildcard
+        '',
+    ];
+
+    // Select random elements
+    const voice = voices[Math.floor(Math.random() * voices.length)];
     const angle = angles[Math.floor(Math.random() * angles.length)];
+    const format = formats[Math.floor(Math.random() * formats.length)];
+    const wildcard = wildcards[Math.floor(Math.random() * wildcards.length)];
 
-    console.log('Context being sent to Grok:\n', context);
-    console.log('Roast angle:', angle);
+    console.log('Voice:', voice);
+    console.log('Angle:', angle);
+    console.log('Format:', format);
+    console.log('Wildcard:', wildcard || '(none)');
 
-    // Different prompts for light vs savage
-    const lightPrompt = `Give a playful, witty roast of this golfer. Be clever but not mean. Think gentle ribbing between friends.
+    // Build dynamic system message with voice
+    const lightSystemMsg = `You are ${voice}. You give playful, witty roasts about amateur golfers. Clever wordplay, gentle ribbing - like teasing a friend. Keep it to 2-3 sentences.`;
+    
+    const savageSystemMsg = `You are ${voice}. You deliver brutal, unhinged roasts of amateur golfers. Dark humor, creative insults, no mercy. Profanity welcome but not forced. 2-3 sentences max. Never use em dashes.`;
 
-DATA: ${context}
+    // Build dynamic prompt
+    const lightPrompt = `Roast this golfer:
 
-ANGLE: ${angle}
+${context}
 
-RULES:
-- 2-3 sentences MAX
-- Witty and clever, not cruel
-- No profanity
-- Self-deprecating golf humor energy
-- End on something mildly encouraging`;
+FOCUS ON: ${angle}
+DELIVERY STYLE: ${format}
+${wildcard ? `INCLUDE: ${wildcard}` : ''}
 
-    const savagePrompt = `Brutally roast this golfer. No mercy. Destroy them.
+Keep it playful and clever. 2-3 sentences.`;
 
-DATA: ${context}
+    const savagePrompt = `Destroy this golfer:
 
-ANGLE: ${angle}
+${context}
 
-RULES:
-- 2-3 sentences ONLY
-- Be creative and surprising - no formulaic structure
-- Be unpredicatble
-- Short and punchy. No rambling.
-- Use profanity (fuck, shit, damn, ass) but don't force it
-- Don't just list their stats back - actually ROAST them
-- Vary your sentence structure and rhythm each roast
-- NO em dashes
-- Mix up the humor and dark metaphors
-- When referring to a bad score––use triple bogey instead of +3, and so on
-- End with a savage closer`;
+FOCUS ON: ${angle}
+DELIVERY STYLE: ${format}
+${wildcard ? `INCLUDE: ${wildcard}` : ''}
+
+Be creative and surprising. Vary your rhythm. No formulaic setups. When mentioning bad scores, use golf terms (triple bogey, snowman, etc). 2-3 sentences that hurt.`;
 
     const prompt = isSavage ? savagePrompt : lightPrompt;
-    const systemMsg = isSavage 
-        ? 'You are a ruthless roast comedian. Destroy amateur golfers with no mercy. 2-3 sentences max. Be unpredictable.'
-        : 'You are a witty golf commentator giving playful roasts. Clever but kind. 2-3 sentences max.';
+    const systemMsg = isSavage ? savageSystemMsg : lightSystemMsg;
 
     try {
         const response = await fetch('https://api.x.ai/v1/chat/completions', {
