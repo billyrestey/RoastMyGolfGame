@@ -281,7 +281,7 @@ app.post('/api/roast', async (req, res) => {
     console.log('Context being sent to Grok:\n', context);
     console.log('Roast angle:', angle);
 
-    const prompt = `Roast this golfer in 2-3 sentences. Be funny, vulgar, and UNPREDICTABLE.
+    const prompt = `You are a brutal golf roast comedian. Destroy ${firstName} in 2-3 sentences MAX.
 
 DATA: ${context}
 
@@ -290,13 +290,13 @@ YOUR ANGLE FOR THIS ROAST: ${angle}
 RULES:
 - 2-3 sentences ONLY
 - Be creative and surprising - no formulaic structure
-- Light profanity okay (shit, damn, ass, hell)
+- Short and punchy. No rambling.
+- Use profanity (fuck, shit, damn, ass)
 - Don't just list their stats back - actually ROAST them
 - Vary your sentence structure and rhythm
 - NO em dashes
-- Talk to an audience, not to the person being roasted
-- Could be dry wit, absurdist, mean, backhanded compliment - mix it up
-- End with something nice about their game, then finish with a final blow`;
+- Mix up the humor and dark metaphors
+- End with something nice about their game, then finish with a savage closer`;
 
     try {
         const response = await fetch('https://api.x.ai/v1/chat/completions', {
@@ -308,10 +308,10 @@ RULES:
             body: JSON.stringify({
                 model: 'grok-3',
                 messages: [
-                    { role: 'system', content: 'You are a comedy roast writer. Every roast must feel completely different - vary your style between dry wit, absurdist humor, savage burns, and backhanded compliments. Never use the same structure twice. 2-3 sentences max.' },
+                    { role: 'system', content: 'You are a vulgar, brutal roast comedian. Keep it SHORT. 2-3 sentences max. Vary each roast, be unpredictable.' },
                     { role: 'user', content: prompt }
                 ],
-                temperature: 1.2
+                temperature: 2
             })
         });
 
