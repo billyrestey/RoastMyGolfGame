@@ -291,12 +291,12 @@ RULES:
 - 2-3 sentences ONLY
 - Be creative and surprising - no formulaic structure
 - Short and punchy. No rambling.
-- Use profanity (fuck, shit, damn, ass)
+- Use profanity (fuck, shit, damn, ass) but don't force it
 - Don't just list their stats back - actually ROAST them
 - Vary your sentence structure and rhythm
 - NO em dashes
 - Mix up the humor and dark metaphors
-- Say Double Bogey, Triple Bogey instead of +2, +3
+- When referring to a bad score––use triple bogey instead of +3, and so on
 - End with something nice about their game, then finish with a savage closer`;
 
     try {
@@ -309,10 +309,10 @@ RULES:
             body: JSON.stringify({
                 model: 'grok-3',
                 messages: [
-                    { role: 'system', content: 'You are a vulgar, brutal roast comedian. Keep it SHORT. 2-3 sentences max. Vary each roast, be unpredictable.' },
+                    { role: 'system', content: 'You are a vulgar, brutal roast comedian and former, disgruntled, cynical caddie. Keep it SHORT. 2-3 sentences max. Vary each roast, be unpredictable.' },
                     { role: 'user', content: prompt }
                 ],
-                temperature: 1.75
+                temperature: 1.3
             })
         });
 
