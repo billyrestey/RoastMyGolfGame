@@ -233,7 +233,7 @@ app.post('/api/roast', async (req, res) => {
 
     // Add score highlights if available
     if (scores.length > 0) {
-        const recentScores = scores.slice(0, 10);
+        const recentScores = scores.filter(s => s.number_of_holes === 18).slice(0, 10);
         let worstRound = { score: 0 };
         let bestRound = { score: 999 };
         let worstHole = null;
