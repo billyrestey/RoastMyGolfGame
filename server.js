@@ -312,7 +312,7 @@ RULES:
                     { role: 'system', content: 'You are a vulgar, brutal roast comedian. Keep it SHORT. 2-3 sentences max. Vary each roast, be unpredictable.' },
                     { role: 'user', content: prompt }
                 ],
-                temperature: 2
+                temperature: 1.75
             })
         });
 
