@@ -88,7 +88,7 @@ async function getServiceToken() {
     }
     
     try {
-        const response = await fetch('https://api2.ghin.com/api/v1/golfer_login.json', {
+        const response = await fetch('https://api.ghin.com/api/v1/golfer_login.json', {
             method: 'POST',
             headers: {
                 'Accept': 'application/json',
@@ -130,6 +130,9 @@ app.post('/api/lookup', async (req, res) => {
         return res.status(500).json({ error: 'Lookup service unavailable' });
     }
     
+    console.log('=== LOOKUP REQUEST ===');
+    console.log('Query:', query);
+    
     try {
         // Check if query is a GHIN number (all digits)
         const isGhinNumber = /^\d+$/.test(query);
@@ -138,69 +141,95 @@ app.post('/api/lookup', async (req, res) => {
         let scores = [];
         
         if (isGhinNumber) {
-            // Direct GHIN lookup
-            const response = await fetch(`https://api2.ghin.com/api/v1/golfers/${query}.json`, {
+            // Direct GHIN lookup using search endpoint
+            const url = `https://api.ghin.com/api/v1/golfers/search.json?per_page=1&page=1&golfer_id=${query}&status=Active`;
+            console.log('GHIN lookup URL:', url);
+            
+            const response = await fetch(url, {
                 headers: {
                     'Accept': 'application/json',
                     'Authorization': `Bearer ${token}`
                 }
             });
             
+            console.log('Response status:', response.status);
+            
             if (response.ok) {
                 const data = await response.json();
-                golfer = data.golfer || data;
+                console.log('Response keys:', Object.keys(data));
+                const golfers = data.golfers || [];
+                if (golfers.length > 0) {
+                    golfer = golfers[0];
+                    console.log('Found golfer:', golfer.player_name);
+                }
             }
         } else {
             // Name search
-            const response = await fetch(`https://api2.ghin.com/api/v1/golfers.json?name=${encodeURIComponent(query)}&per_page=10&page=1`, {
+            const url = `https://api.ghin.com/api/v1/golfers/search.json?per_page=10&page=1&last_name=${encodeURIComponent(query)}&status=Active`;
+            console.log('Name search URL:', url);
+            
+            const response = await fetch(url, {
                 headers: {
                     'Accept': 'application/json',
                     'Authorization': `Bearer ${token}`
                 }
             });
             
+            console.log('Response status:', response.status);
+        
             if (response.ok) {
                 const data = await response.json();
-                // Return list for name search
                 const golfers = data.golfers || [];
-                if (golfers.length === 0) {
-                    return res.status(404).json({ error: 'No golfers found' });
+                console.log('Golfers found:', golfers.length);
+                
+                if (golfers.length > 0) {
+                    // Return list for user to pick
+                    return res.json({ 
+                        results: golfers.slice(0, 10).map(g => ({
+                            ghin: g.ghin || g.ghin_number,
+                            name: g.player_name || `${g.first_name || ''} ${g.last_name || ''}`.trim(),
+                            club: g.club_name,
+                            handicap: g.handicap_index,
+                            city: g.city,
+                            state: g.state
+                        }))
+                    });
                 }
-                // Return list for user to pick
-                return res.json({ 
-                    results: golfers.slice(0, 10).map(g => ({
-                        ghin: g.ghin_number,
-                        name: `${g.first_name} ${g.last_name}`,
-                        club: g.club_name,
-                        handicap: g.handicap_index,
-                        city: g.city,
-                        state: g.state
-                    }))
-                });
             }
+            
+            return res.status(404).json({ error: 'No golfers found' });
         }
         
         if (!golfer) {
             return res.status(404).json({ error: 'Golfer not found' });
         }
         
-        const ghinNumber = golfer.ghin_number || query;
+        const ghinNumber = golfer.ghin || golfer.ghin_number || query;
         
-        // Try to fetch scores
+        // Try to fetch scores using correct endpoint
+        let scores = [];
         try {
-            const scoresResponse = await fetch(`https://api2.ghin.com/api/v1/scores.json?golfer_id=${ghinNumber}&per_page=20`, {
+            const today = new Date().toISOString().split('T')[0];
+            const lastYear = new Date(Date.now() - 365*24*60*60*1000).toISOString().split('T')[0];
+            const scoresUrl = `https://api.ghin.com/api/v1/scores/search.json?per_page=20&page=1&golfer_id=${ghinNumber}&from_date_played=${lastYear}&to_date_played=${today}`;
+            console.log('Scores URL:', scoresUrl);
+            
+            const scoresResponse = await fetch(scoresUrl, {
                 headers: {
                     'Accept': 'application/json',
                     'Authorization': `Bearer ${token}`
                 }
             });
             
+            console.log('Scores response status:', scoresResponse.status);
+            
             if (scoresResponse.ok) {
                 const scoresData = await scoresResponse.json();
-                scores = scoresData.scores || [];
+                scores = scoresData.Scores || scoresData.scores || [];
+                console.log('Scores found:', scores.length);
             }
         } catch (scoreErr) {
-            console.log('Could not fetch scores for public lookup');
+            console.log('Could not fetch scores for public lookup:', scoreErr.message);
         }
         
         // Trim scores
@@ -214,8 +243,8 @@ app.post('/api/lookup', async (req, res) => {
         }));
         
         res.json({
-            ghin_number: golfer.ghin_number,
-            player_name: `${golfer.first_name} ${golfer.last_name}`,
+            ghin_number: golfer.ghin || golfer.ghin_number,
+            player_name: golfer.player_name || `${golfer.first_name} ${golfer.last_name}`,
             club_name: golfer.club_name,
             display: golfer.handicap_index,
             low_hi_display: golfer.low_hi,
@@ -242,7 +271,7 @@ app.post('/api/ghin', async (req, res) => {
     }
 
     try {
-        const response = await fetch('https://api2.ghin.com/api/v1/golfer_login.json', {
+        const response = await fetch('https://api.ghin.com/api/v1/golfer_login.json', {
             method: 'POST',
             headers: {
                 'Accept': 'application/json',
@@ -266,7 +295,7 @@ app.post('/api/ghin', async (req, res) => {
 
         const golfer = data.golfer_user.golfers[0];
         const token = data.golfer_user.golfer_user_token;
-        const ghinNumber = golfer.ghin_number;
+        const ghinNumber = golfer.ghin || golfer.ghin_number;
 
         console.log('GHIN Login successful for:', golfer.player_name);
         console.log('Token received:', token ? 'Yes' : 'No');
@@ -275,38 +304,29 @@ app.post('/api/ghin', async (req, res) => {
         // Fetch recent scores if we have a token
         let scores = [];
         if (token && ghinNumber) {
-            // Try the scores endpoint
-            const scoresUrls = [
-                `https://api2.ghin.com/api/v1/golfers/${ghinNumber}/scores.json`,
-                `https://api2.ghin.com/api/v1/scores.json?golfer_id=${ghinNumber}`,
-            ];
+            const today = new Date().toISOString().split('T')[0];
+            const lastYear = new Date(Date.now() - 365*24*60*60*1000).toISOString().split('T')[0];
+            const scoresUrl = `https://api.ghin.com/api/v1/scores/search.json?per_page=50&page=1&golfer_id=${ghinNumber}&from_date_played=${lastYear}&to_date_played=${today}`;
 
-            for (const url of scoresUrls) {
-                try {
-                    console.log('Trying scores URL:', url);
-                    const scoresResponse = await fetch(url, {
-                        headers: {
-                            'Accept': 'application/json',
-                            'Content-Type': 'application/json',
-                            'Authorization': `Bearer ${token}`
-                        }
-                    });
-                    
-                    console.log('Scores response status:', scoresResponse.status);
-                    
-                    if (scoresResponse.ok) {
-                        const scoresData = await scoresResponse.json();
-                        console.log('Scores data keys:', Object.keys(scoresData));
-                        scores = scoresData.scores || scoresData.score_list || [];
-                        console.log('Scores found:', scores.length);
-                        if (scores.length > 0) {
-                            console.log('Sample score:', JSON.stringify(scores[0], null, 2));
-                            break;
-                        }
+            try {
+                console.log('Trying scores URL:', scoresUrl);
+                const scoresResponse = await fetch(scoresUrl, {
+                    headers: {
+                        'Accept': 'application/json',
+                        'Authorization': `Bearer ${token}`
                     }
-                } catch (scoreErr) {
-                    console.error('Error fetching scores from', url, ':', scoreErr.message);
+                });
+                
+                console.log('Scores response status:', scoresResponse.status);
+                
+                if (scoresResponse.ok) {
+                    const scoresData = await scoresResponse.json();
+                    console.log('Scores data keys:', Object.keys(scoresData));
+                    scores = scoresData.Scores || scoresData.scores || [];
+                    console.log('Scores found:', scores.length);
                 }
+            } catch (scoreErr) {
+                console.error('Error fetching scores:', scoreErr.message);
             }
         }
 
