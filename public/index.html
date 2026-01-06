@@ -133,6 +133,65 @@
             margin-bottom: 4px;
         }
 
+        /* Mode toggle */
+        .mode-toggle {
+            display: flex;
+            gap: 0;
+            background: #f3f4f6;
+            border-radius: 6px;
+            padding: 4px;
+        }
+        .mode-option {
+            flex: 1;
+            padding: 10px 16px;
+            font-size: 13px;
+            font-weight: 500;
+            font-family: inherit;
+            background: transparent;
+            color: var(--gray);
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .mode-option.active {
+            background: #fff;
+            color: var(--gray-dark);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        /* Search results */
+        .search-results {
+            margin-bottom: 20px;
+        }
+        .search-result {
+            padding: 12px;
+            border: 1px solid #e5e7eb;
+            border-radius: 6px;
+            margin-bottom: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .search-result:hover {
+            border-color: var(--green);
+            background: #f9fafb;
+        }
+        .search-result-name {
+            font-weight: 600;
+            color: var(--gray-dark);
+        }
+        .search-result-details {
+            font-size: 12px;
+            color: var(--gray);
+            margin-top: 2px;
+        }
+        .search-result-handicap {
+            float: right;
+            font-size: 18px;
+            font-weight: 300;
+            color: var(--green);
+        }
+
         button.primary {
             width: 100%;
             padding: 16px;
@@ -381,33 +440,58 @@
     <main>
         <div class="container" id="mainContainer">
             <div id="loginForm">
-                <h1>Get Roasted ⛳</h1>
-                <p class="subtitle">Enter your GHIN to receive a personalized roast of your golf game.</p>
+                <h1>Roast My Golf Game</h1>
+                <p class="subtitle">Enter a name or GHIN to roast any golfer.</p>
 
                 <div class="error" id="error"></div>
 
+                <!-- Mode toggle -->
                 <div class="form-group">
-                    <label>GHIN Number</label>
-                    <input type="text" id="ghin" placeholder="e.g. 1234567">
-                </div>
-
-                <div class="form-group">
-                    <label>Password</label>
-                    <input type="password" id="password" placeholder="Your GHIN password">
-                    <div class="privacy-note">
-                        🔒 Your credentials are only used to fetch your handicap data from GHIN and are never stored.
+                    <div class="mode-toggle">
+                        <button type="button" class="mode-option active" data-mode="lookup" onclick="setMode('lookup')">
+                            Quick Lookup
+                        </button>
+                        <button type="button" class="mode-option" data-mode="login" onclick="setMode('login')">
+                            GHIN Login
+                        </button>
                     </div>
                 </div>
+
+                <!-- Lookup mode (default) -->
+                <div id="lookupFields">
+                    <div class="form-group">
+                        <label>Name or GHIN Number</label>
+                        <input type="text" id="query" placeholder="e.g. Tiger Woods or 1234567">
+                    </div>
+                </div>
+
+                <!-- Login mode -->
+                <div id="loginFields" style="display: none;">
+                    <div class="form-group">
+                        <label>GHIN Number</label>
+                        <input type="text" id="ghin" placeholder="e.g. 1234567">
+                    </div>
+                    <div class="form-group">
+                        <label>Password</label>
+                        <input type="password" id="password" placeholder="Your GHIN password">
+                        <div class="privacy-note">
+                            🔒 Your credentials are only used to fetch your handicap data from GHIN and are never stored.
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Search results (for name lookup) -->
+                <div id="searchResults" class="search-results" style="display: none;"></div>
 
                 <div class="form-group">
                     <label>Roast Intensity</label>
                     <div class="intensity-toggle">
-                        <button type="button" class="intensity-option active" data-intensity="light"
+                        <button type="button" class="intensity-option" data-intensity="light"
                             onclick="setIntensity('light')">
                             <span class="icon">😏</span>
                             Light Roast
                         </button>
-                        <button type="button" class="intensity-option" data-intensity="savage"
+                        <button type="button" class="intensity-option active" data-intensity="savage"
                             onclick="setIntensity('savage')">
                             <span class="icon">🔥</span>
                             Savage
@@ -415,7 +499,7 @@
                     </div>
                 </div>
 
-                <button class="primary" onclick="roastMe()">Roast Me</button>
+                <button class="primary" id="roastBtn" onclick="handleSubmit()">Find Golfer</button>
             </div>
 
             <div class="loading" id="loading">
@@ -453,7 +537,8 @@
 
     <script>
         const $ = id => document.getElementById(id);
-        let selectedIntensity = 'light';
+        let selectedIntensity = 'savage';
+        let selectedMode = 'lookup';
         let currentGolferData = null;
 
         function setIntensity(intensity) {
@@ -463,7 +548,106 @@
             });
         }
 
-        async function roastMe() {
+        function setMode(mode) {
+            selectedMode = mode;
+            document.querySelectorAll('.mode-option').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.mode === mode);
+            });
+            
+            $('lookupFields').style.display = mode === 'lookup' ? 'block' : 'none';
+            $('loginFields').style.display = mode === 'login' ? 'block' : 'none';
+            $('searchResults').style.display = 'none';
+            $('roastBtn').textContent = mode === 'lookup' ? 'Find Golfer' : 'Roast Me';
+            hideError();
+        }
+
+        async function handleSubmit() {
+            if (selectedMode === 'lookup') {
+                await doLookup();
+            } else {
+                await doLogin();
+            }
+        }
+
+        async function doLookup() {
+            const query = $('query').value.trim();
+            
+            if (!query) {
+                showError('Please enter a name or GHIN number');
+                return;
+            }
+
+            hideError();
+            $('searchResults').style.display = 'none';
+            $('roastBtn').disabled = true;
+            $('roastBtn').textContent = 'Searching...';
+
+            try {
+                const res = await fetch('/api/lookup', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ query })
+                });
+
+                const data = await res.json();
+                
+                if (!res.ok) {
+                    throw new Error(data.error || 'Lookup failed');
+                }
+
+                // If we got search results (name search), show them
+                if (data.results) {
+                    showSearchResults(data.results);
+                } else {
+                    // Direct GHIN lookup - go straight to roast
+                    await generateRoast(data);
+                }
+
+            } catch (err) {
+                showError(err.message);
+            } finally {
+                $('roastBtn').disabled = false;
+                $('roastBtn').textContent = 'Find Golfer';
+            }
+        }
+
+        function showSearchResults(results) {
+            const container = $('searchResults');
+            container.innerHTML = results.map(r => `
+                <div class="search-result" onclick="selectGolfer('${r.ghin}')">
+                    <span class="search-result-handicap">${r.handicap || 'N/A'}</span>
+                    <div class="search-result-name">${r.name}</div>
+                    <div class="search-result-details">${r.club || ''}${r.club && r.state ? ' · ' : ''}${r.state || ''}</div>
+                </div>
+            `).join('');
+            container.style.display = 'block';
+        }
+
+        async function selectGolfer(ghin) {
+            $('searchResults').style.display = 'none';
+            $('loginForm').style.display = 'none';
+            $('loading').classList.add('show');
+            $('loadingText').textContent = 'Fetching golfer data...';
+
+            try {
+                const res = await fetch('/api/lookup', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ query: ghin })
+                });
+
+                const data = await res.json();
+                if (!res.ok) throw new Error(data.error);
+                
+                await generateRoast(data);
+            } catch (err) {
+                $('loading').classList.remove('show');
+                $('loginForm').style.display = 'block';
+                showError(err.message);
+            }
+        }
+
+        async function doLogin() {
             const ghin = $('ghin').value.trim();
             const password = $('password').value;
 
@@ -490,10 +674,20 @@
                 }
 
                 const golferData = await ghinRes.json();
-                currentGolferData = golferData;
+                await generateRoast(golferData);
 
-                $('loadingText').textContent = 'Generating roast...';
+            } catch (err) {
+                $('loading').classList.remove('show');
+                $('loginForm').style.display = 'block';
+                showError(err.message);
+            }
+        }
 
+        async function generateRoast(golferData) {
+            currentGolferData = golferData;
+            $('loadingText').textContent = 'Generating roast...';
+
+            try {
                 const roastRes = await fetch('/api/roast', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -514,6 +708,7 @@
                 $('loginForm').style.display = 'block';
                 showError(err.message);
             }
+        }
         }
 
         function displayResult(golfer, roast) {

@@ -70,7 +70,168 @@ function sanitizeInput(str, maxLength = 100) {
     return str.trim().slice(0, maxLength);
 }
 
-// GHIN Login endpoint - returns golfer data + token for subsequent requests
+// Service account credentials (your GHIN) - used for public lookups
+const SERVICE_GHIN = process.env.SERVICE_GHIN;
+const SERVICE_PASSWORD = process.env.SERVICE_PASSWORD;
+let serviceToken = null;
+let serviceTokenExpiry = 0;
+
+// Get or refresh service token
+async function getServiceToken() {
+    if (serviceToken && Date.now() < serviceTokenExpiry) {
+        return serviceToken;
+    }
+    
+    if (!SERVICE_GHIN || !SERVICE_PASSWORD) {
+        console.error('Service account credentials not configured');
+        return null;
+    }
+    
+    try {
+        const response = await fetch('https://api2.ghin.com/api/v1/golfer_login.json', {
+            method: 'POST',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                user: {
+                    email_or_ghin: SERVICE_GHIN,
+                    password: SERVICE_PASSWORD,
+                    remember_me: 'true'
+                },
+                token: 'roastmygolfgame'
+            })
+        });
+        
+        const data = await response.json();
+        if (data.golfer_user?.golfer_user_token) {
+            serviceToken = data.golfer_user.golfer_user_token;
+            serviceTokenExpiry = Date.now() + (60 * 60 * 1000); // 1 hour
+            console.log('Service token refreshed');
+            return serviceToken;
+        }
+    } catch (err) {
+        console.error('Failed to get service token:', err.message);
+    }
+    return null;
+}
+
+// PUBLIC LOOKUP - search by name or GHIN number (no password needed)
+app.post('/api/lookup', async (req, res) => {
+    const query = sanitizeInput(req.body.query, 50);
+    
+    if (!query || query.length < 2) {
+        return res.status(400).json({ error: 'Search query too short' });
+    }
+    
+    const token = await getServiceToken();
+    if (!token) {
+        return res.status(500).json({ error: 'Lookup service unavailable' });
+    }
+    
+    try {
+        // Check if query is a GHIN number (all digits)
+        const isGhinNumber = /^\d+$/.test(query);
+        
+        let golfer = null;
+        let scores = [];
+        
+        if (isGhinNumber) {
+            // Direct GHIN lookup
+            const response = await fetch(`https://api2.ghin.com/api/v1/golfers/${query}.json`, {
+                headers: {
+                    'Accept': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+            
+            if (response.ok) {
+                const data = await response.json();
+                golfer = data.golfer || data;
+            }
+        } else {
+            // Name search
+            const response = await fetch(`https://api2.ghin.com/api/v1/golfers.json?name=${encodeURIComponent(query)}&per_page=10&page=1`, {
+                headers: {
+                    'Accept': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+            
+            if (response.ok) {
+                const data = await response.json();
+                // Return list for name search
+                const golfers = data.golfers || [];
+                if (golfers.length === 0) {
+                    return res.status(404).json({ error: 'No golfers found' });
+                }
+                // Return list for user to pick
+                return res.json({ 
+                    results: golfers.slice(0, 10).map(g => ({
+                        ghin: g.ghin_number,
+                        name: `${g.first_name} ${g.last_name}`,
+                        club: g.club_name,
+                        handicap: g.handicap_index,
+                        city: g.city,
+                        state: g.state
+                    }))
+                });
+            }
+        }
+        
+        if (!golfer) {
+            return res.status(404).json({ error: 'Golfer not found' });
+        }
+        
+        const ghinNumber = golfer.ghin_number || query;
+        
+        // Try to fetch scores
+        try {
+            const scoresResponse = await fetch(`https://api2.ghin.com/api/v1/scores.json?golfer_id=${ghinNumber}&per_page=20`, {
+                headers: {
+                    'Accept': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+            
+            if (scoresResponse.ok) {
+                const scoresData = await scoresResponse.json();
+                scores = scoresData.scores || [];
+            }
+        } catch (scoreErr) {
+            console.log('Could not fetch scores for public lookup');
+        }
+        
+        // Trim scores
+        const trimmedScores = scores.filter(s => s.number_of_holes === 18).slice(0, 20).map(s => ({
+            facility_name: s.facility_name || s.course_name,
+            adjusted_gross_score: s.adjusted_gross_score,
+            differential: s.differential,
+            played_at: s.played_at,
+            number_of_holes: s.number_of_holes,
+            worst_hole: s.hole_details ? findWorstHole(s.hole_details) : null
+        }));
+        
+        res.json({
+            ghin_number: golfer.ghin_number,
+            player_name: `${golfer.first_name} ${golfer.last_name}`,
+            club_name: golfer.club_name,
+            display: golfer.handicap_index,
+            low_hi_display: golfer.low_hi,
+            soft_cap: golfer.soft_cap,
+            hard_cap: golfer.hard_cap,
+            recent_scores: trimmedScores,
+            lookup_mode: true
+        });
+        
+    } catch (error) {
+        console.error('Lookup error:', error);
+        res.status(500).json({ error: 'Lookup failed' });
+    }
+});
+
+// GHIN Login endpoint - returns golfer data + token for subsequent requests (full access)
 app.post('/api/ghin', async (req, res) => {
     const email_or_ghin = sanitizeInput(req.body.email_or_ghin, 50);
     const password = req.body.password; // Don't truncate password, but validate type
