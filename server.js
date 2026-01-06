@@ -164,40 +164,55 @@ app.post('/api/lookup', async (req, res) => {
                 }
             }
         } else {
-            // Name search
-            const url = `https://api.ghin.com/api/v1/golfers/search.json?per_page=10&page=1&last_name=${encodeURIComponent(query)}&status=Active`;
-            console.log('Name search URL:', url);
+            // Name search - try multiple approaches
+            const searchParams = [
+                `last_name=${encodeURIComponent(query)}`,
+                `name=${encodeURIComponent(query)}`,
+                `search=${encodeURIComponent(query)}`
+            ];
             
-            const response = await fetch(url, {
-                headers: {
-                    'Accept': 'application/json',
-                    'Authorization': `Bearer ${token}`
-                }
-            });
+            let foundGolfers = [];
             
-            console.log('Response status:', response.status);
-        
-            if (response.ok) {
-                const data = await response.json();
-                const golfers = data.golfers || [];
-                console.log('Golfers found:', golfers.length);
+            for (const param of searchParams) {
+                const url = `https://api.ghin.com/api/v1/golfers/search.json?per_page=10&page=1&${param}&status=Active`;
+                console.log('Trying name search URL:', url);
                 
-                if (golfers.length > 0) {
-                    // Return list for user to pick
-                    return res.json({ 
-                        results: golfers.slice(0, 10).map(g => ({
-                            ghin: g.ghin || g.ghin_number,
-                            name: g.player_name || `${g.first_name || ''} ${g.last_name || ''}`.trim(),
-                            club: g.club_name,
-                            handicap: g.handicap_index,
-                            city: g.city,
-                            state: g.state
-                        }))
-                    });
+                const response = await fetch(url, {
+                    headers: {
+                        'Accept': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+                
+                console.log('Response status:', response.status);
+            
+                if (response.ok) {
+                    const data = await response.json();
+                    const golfers = data.golfers || [];
+                    console.log('Golfers found:', golfers.length);
+                    
+                    if (golfers.length > 0) {
+                        foundGolfers = golfers;
+                        break;
+                    }
                 }
             }
             
-            return res.status(404).json({ error: 'No golfers found' });
+            if (foundGolfers.length > 0) {
+                // Return list for user to pick
+                return res.json({ 
+                    results: foundGolfers.slice(0, 10).map(g => ({
+                        ghin: g.ghin || g.ghin_number,
+                        name: g.player_name || `${g.first_name || ''} ${g.last_name || ''}`.trim(),
+                        club: g.club_name,
+                        handicap: g.handicap_index,
+                        city: g.city,
+                        state: g.state
+                    }))
+                });
+            }
+            
+            return res.status(404).json({ error: 'No golfers found. Try searching by GHIN number instead.' });
         }
         
         if (!golfer) {

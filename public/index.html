@@ -499,7 +499,7 @@
                     </div>
                 </div>
 
-                <button class="primary" id="roastBtn" onclick="handleSubmit()">Find Golfer</button>
+                <button class="primary" id="roastBtn" onclick="handleSubmit()">Roast</button>
             </div>
 
             <div class="loading" id="loading">
@@ -557,7 +557,7 @@
             $('lookupFields').style.display = mode === 'lookup' ? 'block' : 'none';
             $('loginFields').style.display = mode === 'login' ? 'block' : 'none';
             $('searchResults').style.display = 'none';
-            $('roastBtn').textContent = mode === 'lookup' ? 'Find Golfer' : 'Roast Me';
+            $('roastBtn').textContent = 'Roast';
             hideError();
         }
 
@@ -598,16 +598,20 @@
                 // If we got search results (name search), show them
                 if (data.results) {
                     showSearchResults(data.results);
+                    $('roastBtn').disabled = false;
+                    $('roastBtn').textContent = 'Roast';
                 } else {
-                    // Direct GHIN lookup - go straight to roast
+                    // Direct GHIN lookup - go straight to roast with loading screen
+                    $('loginForm').style.display = 'none';
+                    $('loading').classList.add('show');
+                    $('loadingText').textContent = 'Generating roast...';
                     await generateRoast(data);
                 }
 
             } catch (err) {
                 showError(err.message);
-            } finally {
                 $('roastBtn').disabled = false;
-                $('roastBtn').textContent = 'Find Golfer';
+                $('roastBtn').textContent = 'Roast';
             }
         }
 
