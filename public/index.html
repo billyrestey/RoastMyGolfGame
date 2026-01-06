@@ -159,11 +159,10 @@
         }
 
         .privacy-note {
-            margin-top: 20px;
+            margin-top: 10px;
             font-size: 11px;
             color: var(--gray);
-            text-align: center;
-            line-height: 1.6;
+            line-height: 1.5;
         }
 
         .error {
@@ -395,6 +394,9 @@
                 <div class="form-group">
                     <label>Password</label>
                     <input type="password" id="password" placeholder="Your GHIN password">
+                    <div class="privacy-note">
+                        🔒 Your credentials are only used to fetch your handicap data from GHIN and are never stored.
+                    </div>
                 </div>
 
                 <div class="form-group">
@@ -414,10 +416,6 @@
                 </div>
 
                 <button class="primary" onclick="roastMe()">Roast Me</button>
-
-                <div class="privacy-note">
-                    🔒 Your credentials are only used to fetch your handicap data from GHIN and are never stored.
-                </div>
             </div>
 
             <div class="loading" id="loading">
