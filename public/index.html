@@ -74,7 +74,7 @@
             margin-bottom: 8px;
         }
 
-        input {
+        input, select {
             width: 100%;
             padding: 14px 16px;
             font-size: 16px;
@@ -85,7 +85,7 @@
             transition: border-color 0.2s, box-shadow 0.2s;
         }
 
-        input:focus {
+        input:focus, select:focus {
             outline: none;
             border-color: var(--green);
             box-shadow: 0 0 0 3px rgba(0, 103, 71, 0.1);
@@ -93,6 +93,14 @@
 
         input::placeholder {
             color: #9ca3af;
+        }
+        
+        select {
+            cursor: pointer;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%236b7280' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 16px center;
         }
 
         /* Roast intensity toggle */
@@ -460,8 +468,64 @@
                 <!-- Lookup mode (default) -->
                 <div id="lookupFields">
                     <div class="form-group">
-                        <label>Name or GHIN Number</label>
-                        <input type="text" id="query" placeholder="e.g. Tiger Woods or 1234567">
+                        <label>Last Name or GHIN Number</label>
+                        <input type="text" id="query" placeholder="e.g. Woods or 1234567">
+                    </div>
+                    <div class="form-group" id="stateField">
+                        <label>State (required for name search)</label>
+                        <select id="state">
+                            <option value="">Select state...</option>
+                            <option value="AL">Alabama</option>
+                            <option value="AK">Alaska</option>
+                            <option value="AZ">Arizona</option>
+                            <option value="AR">Arkansas</option>
+                            <option value="CA">California</option>
+                            <option value="CO">Colorado</option>
+                            <option value="CT">Connecticut</option>
+                            <option value="DE">Delaware</option>
+                            <option value="FL">Florida</option>
+                            <option value="GA">Georgia</option>
+                            <option value="HI">Hawaii</option>
+                            <option value="ID">Idaho</option>
+                            <option value="IL">Illinois</option>
+                            <option value="IN">Indiana</option>
+                            <option value="IA">Iowa</option>
+                            <option value="KS">Kansas</option>
+                            <option value="KY">Kentucky</option>
+                            <option value="LA">Louisiana</option>
+                            <option value="ME">Maine</option>
+                            <option value="MD">Maryland</option>
+                            <option value="MA">Massachusetts</option>
+                            <option value="MI">Michigan</option>
+                            <option value="MN">Minnesota</option>
+                            <option value="MS">Mississippi</option>
+                            <option value="MO">Missouri</option>
+                            <option value="MT">Montana</option>
+                            <option value="NE">Nebraska</option>
+                            <option value="NV">Nevada</option>
+                            <option value="NH">New Hampshire</option>
+                            <option value="NJ">New Jersey</option>
+                            <option value="NM">New Mexico</option>
+                            <option value="NY">New York</option>
+                            <option value="NC">North Carolina</option>
+                            <option value="ND">North Dakota</option>
+                            <option value="OH">Ohio</option>
+                            <option value="OK">Oklahoma</option>
+                            <option value="OR">Oregon</option>
+                            <option value="PA">Pennsylvania</option>
+                            <option value="RI">Rhode Island</option>
+                            <option value="SC">South Carolina</option>
+                            <option value="SD">South Dakota</option>
+                            <option value="TN">Tennessee</option>
+                            <option value="TX">Texas</option>
+                            <option value="UT">Utah</option>
+                            <option value="VT">Vermont</option>
+                            <option value="VA">Virginia</option>
+                            <option value="WA">Washington</option>
+                            <option value="WV">West Virginia</option>
+                            <option value="WI">Wisconsin</option>
+                            <option value="WY">Wyoming</option>
+                        </select>
                     </div>
                 </div>
 
@@ -571,9 +635,17 @@
 
         async function doLookup() {
             const query = $('query').value.trim();
+            const state = $('state').value;
+            const isGhinNumber = /^\d+$/.test(query);
             
             if (!query) {
-                showError('Please enter a name or GHIN number');
+                showError('Please enter a last name or GHIN number');
+                return;
+            }
+            
+            // If searching by name, require state
+            if (!isGhinNumber && !state) {
+                showError('Please select a state when searching by name');
                 return;
             }
 
@@ -589,7 +661,7 @@
                 const res = await fetch('/api/lookup', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ query })
+                    body: JSON.stringify({ query, state })
                 });
 
                 const data = await res.json();

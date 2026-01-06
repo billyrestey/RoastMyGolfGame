@@ -164,73 +164,57 @@ app.post('/api/lookup', async (req, res) => {
                 }
             }
         } else {
-            // Name search - split into first/last if space present
+            // Name search requires state - check if provided
+            const state = sanitizeInput(req.body.state, 2).toUpperCase();
+            
+            if (!state) {
+                return res.status(400).json({ error: 'State is required for name search. Try GHIN number instead.' });
+            }
+            
+            // Split into first/last if space present
             const nameParts = query.trim().split(/\s+/);
-            let searchParams = [];
+            let searchParams = '';
             
             if (nameParts.length >= 2) {
-                // First and last name provided
                 const firstName = nameParts[0];
                 const lastName = nameParts.slice(1).join(' ');
-                searchParams = [
-                    `first_name=${encodeURIComponent(firstName)}&last_name=${encodeURIComponent(lastName)}`,
-                    `last_name=${encodeURIComponent(lastName)}&first_name=${encodeURIComponent(firstName)}`
-                ];
+                searchParams = `first_name=${encodeURIComponent(firstName)}&last_name=${encodeURIComponent(lastName)}`;
             } else {
-                // Single name - try as last name
-                searchParams = [
-                    `last_name=${encodeURIComponent(query)}`,
-                    `first_name=${encodeURIComponent(query)}`
-                ];
+                searchParams = `last_name=${encodeURIComponent(query)}`;
             }
             
-            let foundGolfers = [];
+            const url = `https://api.ghin.com/api/v1/golfers/search.json?per_page=10&page=1&${searchParams}&state=${state}&country=USA&status=Active`;
+            console.log('Name search URL:', url);
             
-            for (const param of searchParams) {
-                const url = `https://api.ghin.com/api/v1/golfers/search.json?per_page=10&page=1&${param}&status=Active`;
-                console.log('Trying name search URL:', url);
-                
-                const response = await fetch(url, {
-                    headers: {
-                        'Accept': 'application/json',
-                        'Authorization': `Bearer ${token}`
-                    }
-                });
-                
-                console.log('Response status:', response.status);
-                
-                // Log response body for debugging
-                const responseText = await response.text();
-                console.log('Response body:', responseText.substring(0, 500));
-                
-                if (response.status === 200) {
-                    try {
-                        const data = JSON.parse(responseText);
-                        const golfers = data.golfers || [];
-                        console.log('Golfers found:', golfers.length);
-                        
-                        if (golfers.length > 0) {
-                            foundGolfers = golfers;
-                            break;
-                        }
-                    } catch (e) {
-                        console.log('Failed to parse response');
-                    }
+            const response = await fetch(url, {
+                headers: {
+                    'Accept': 'application/json',
+                    'Authorization': `Bearer ${token}`
                 }
-            }
+            });
             
-            if (foundGolfers.length > 0) {
-                // Return list for user to pick
-                return res.json({ 
-                    results: foundGolfers.slice(0, 10).map(g => ({
-                        ghin: g.ghin || g.ghin_number,
-                        name: g.player_name || `${g.first_name || ''} ${g.last_name || ''}`.trim(),
-                        club: g.club_name,
-                        handicap: g.handicap_index,
-                        city: g.city,
-                        state: g.state
-                    }))
-                });
+            console.log('Response status:', response.status);
+            
+            if (response.ok) {
+                const data = await response.json();
+                const golfers = data.golfers || [];
+                console.log('Golfers found:', golfers.length);
+                
+                if (golfers.length > 0) {
+                    return res.json({ 
+                        results: golfers.slice(0, 10).map(g => ({
+                            ghin: g.ghin || g.ghin_number,
+                            name: g.player_name || `${g.first_name || ''} ${g.last_name || ''}`.trim(),
+                            club: g.club_name,
+                            handicap: g.handicap_index,
+                            city: g.city,
+                            state: g.state
+                        }))
+                    });
+                }
+            } else {
+                const errorText = await response.text();
+                console.log('Search error:', errorText);
             }
             
             return res.status(404).json({ error: 'No golfers found. Try searching by GHIN number instead.' });
