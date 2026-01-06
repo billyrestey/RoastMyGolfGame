@@ -581,6 +581,9 @@
             $('searchResults').style.display = 'none';
             $('roastBtn').disabled = true;
             $('roastBtn').textContent = 'Searching...';
+            $('loginForm').style.display = 'none';
+            $('loading').classList.add('show');
+            $('loadingText').textContent = 'Looking up golfer...';
 
             try {
                 const res = await fetch('/api/lookup', {
@@ -597,18 +600,20 @@
 
                 // If we got search results (name search), show them
                 if (data.results) {
+                    $('loading').classList.remove('show');
+                    $('loginForm').style.display = 'block';
                     showSearchResults(data.results);
                     $('roastBtn').disabled = false;
                     $('roastBtn').textContent = 'Roast';
                 } else {
-                    // Direct GHIN lookup - go straight to roast with loading screen
-                    $('loginForm').style.display = 'none';
-                    $('loading').classList.add('show');
+                    // Direct GHIN lookup - go straight to roast
                     $('loadingText').textContent = 'Generating roast...';
                     await generateRoast(data);
                 }
 
             } catch (err) {
+                $('loading').classList.remove('show');
+                $('loginForm').style.display = 'block';
                 showError(err.message);
                 $('roastBtn').disabled = false;
                 $('roastBtn').textContent = 'Roast';
@@ -720,6 +725,7 @@
             $('handicap').textContent = golfer.display || 'N/A';
             $('roast').textContent = roast;
 
+            $('loginForm').style.display = 'none';
             $('loading').classList.remove('show');
             $('result').classList.add('show');
         }
