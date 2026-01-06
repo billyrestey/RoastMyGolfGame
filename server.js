@@ -164,12 +164,25 @@ app.post('/api/lookup', async (req, res) => {
                 }
             }
         } else {
-            // Name search - try multiple approaches
-            const searchParams = [
-                `last_name=${encodeURIComponent(query)}`,
-                `name=${encodeURIComponent(query)}`,
-                `search=${encodeURIComponent(query)}`
-            ];
+            // Name search - split into first/last if space present
+            const nameParts = query.trim().split(/\s+/);
+            let searchParams = [];
+            
+            if (nameParts.length >= 2) {
+                // First and last name provided
+                const firstName = nameParts[0];
+                const lastName = nameParts.slice(1).join(' ');
+                searchParams = [
+                    `first_name=${encodeURIComponent(firstName)}&last_name=${encodeURIComponent(lastName)}`,
+                    `last_name=${encodeURIComponent(lastName)}&first_name=${encodeURIComponent(firstName)}`
+                ];
+            } else {
+                // Single name - try as last name
+                searchParams = [
+                    `last_name=${encodeURIComponent(query)}`,
+                    `first_name=${encodeURIComponent(query)}`
+                ];
+            }
             
             let foundGolfers = [];
             
@@ -185,15 +198,23 @@ app.post('/api/lookup', async (req, res) => {
                 });
                 
                 console.log('Response status:', response.status);
-            
-                if (response.ok) {
-                    const data = await response.json();
-                    const golfers = data.golfers || [];
-                    console.log('Golfers found:', golfers.length);
-                    
-                    if (golfers.length > 0) {
-                        foundGolfers = golfers;
-                        break;
+                
+                // Log response body for debugging
+                const responseText = await response.text();
+                console.log('Response body:', responseText.substring(0, 500));
+                
+                if (response.status === 200) {
+                    try {
+                        const data = JSON.parse(responseText);
+                        const golfers = data.golfers || [];
+                        console.log('Golfers found:', golfers.length);
+                        
+                        if (golfers.length > 0) {
+                            foundGolfers = golfers;
+                            break;
+                        }
+                    } catch (e) {
+                        console.log('Failed to parse response');
                     }
                 }
             }
